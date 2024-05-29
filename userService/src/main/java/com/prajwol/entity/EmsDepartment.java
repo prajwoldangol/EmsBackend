@@ -12,6 +12,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class EmsDepartment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

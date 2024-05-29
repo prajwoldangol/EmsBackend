@@ -68,8 +68,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } else {
+                    log.info("JWT token is invalid or expired.");
                     throw new EmsCustomException("Unauthorized Access", "401");
-//                    log.info("JWT token is invalid or expired.");
+
                 }
             } else {
                 log.info("Username is null or authentication already exists in SecurityContextHolder.");
@@ -94,6 +95,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             response.getWriter().flush();
         }
+        //filterChain.doFilter(request, response);
 
     }
 }

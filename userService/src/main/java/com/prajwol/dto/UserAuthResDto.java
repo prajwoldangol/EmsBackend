@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserResDto {
+public class UserAuthResDto {
 
     private int statusCode;
-    private long employerId;
+    private String employerId;
     private String token;
     private String refreshToken;
     private String role;

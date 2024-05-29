@@ -1,7 +1,7 @@
 package com.prajwol.controller;
 
-import com.prajwol.dto.UserReqDto;
-import com.prajwol.dto.UserResDto;
+import com.prajwol.dto.UserAuthReqDto;
+import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployer;
 import com.prajwol.service.EmsEmployerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class EmsEmployerController {
         this.emsEmployerService = emsEmployerService;
     }
     @PostMapping("/login")
-    public ResponseEntity<UserResDto> login(@RequestBody UserReqDto employerReqDto) {
+    public ResponseEntity<UserAuthResDto> login(@RequestBody UserAuthReqDto employerReqDto) {
         return ResponseEntity.ok(emsEmployerService.loginEmployer(employerReqDto));
     }
 

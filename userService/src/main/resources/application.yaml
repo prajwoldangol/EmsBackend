@@ -11,7 +11,7 @@ spring:
       ddl-auto: update
     show-sql: true
   application:
-    name: userService
+    name: USER-SERVICE
 
 jwt:
   secret:
@@ -20,3 +20,14 @@ jwt:
 logging:
   level:
     org.springframework.security: DEBUG
+key:
+  bytes: "2,-1,-100,39,88,-56,96,75,2,85,86,26,28,-100,8,84"
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
