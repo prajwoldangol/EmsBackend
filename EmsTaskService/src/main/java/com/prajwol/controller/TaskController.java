@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/todo")
 public class TaskController {
@@ -16,14 +19,37 @@ public class TaskController {
     public TaskController(EmsTaskService taskService) {
         this.taskService = taskService;
     }
-
-        @GetMapping("/hello")
-    public ResponseEntity<String> test(){
-        return ResponseEntity.ok("test passed" );
-    }
-
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<EmsTask> addTask(@RequestBody EmsTaskDto task) {
         return ResponseEntity.ok(taskService.addTask(task));
+    }
+    @PutMapping("/{taskId}")
+    public ResponseEntity<EmsTask> updateTask( @PathVariable String taskId, @RequestBody EmsTaskDto task) {
+        return ResponseEntity.ok(taskService.updateTask(taskId, task));
+    }
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<Void> deleteTask(@PathVariable String taskId) {
+        taskService.deleteTask(taskId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EmsTask>> getAllTasks() {
+        return ResponseEntity.ok(taskService.getAllTasks());
+    }
+    @GetMapping("/{taskId}")
+    public ResponseEntity<EmsTask> getTaskById(@PathVariable String taskId) {
+        Optional<EmsTask> task = taskService.getTaskById(taskId);
+        return task.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/owner/{taskOwner}")
+    public ResponseEntity<List<EmsTask>> getTasksByTaskOwner(@PathVariable String taskOwner) {
+        return ResponseEntity.ok(taskService.getTasksByTaskOwner(taskOwner));
+    }
+
+    @GetMapping("/department/{department}")
+    public ResponseEntity<List<EmsTask>> getTasksByDepartment(@PathVariable String department) {
+        return ResponseEntity.ok(taskService.getTasksByDepartment(department));
     }
 }

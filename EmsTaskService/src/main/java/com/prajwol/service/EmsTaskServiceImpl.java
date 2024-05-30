@@ -7,7 +7,6 @@ import com.prajwol.repository.EmsTaskRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,5 +92,17 @@ public class EmsTaskServiceImpl implements EmsTaskService {
 
     public List<EmsTask> getAllTasks() {
         return emsTaskRepository.findAll();
+    }
+    public Optional<EmsTask> getTaskById(String taskIdString) {
+        ObjectId taskId = new ObjectId(taskIdString);
+        return emsTaskRepository.findById(taskId);
+    }
+
+    public List<EmsTask> getTasksByTaskOwner(String taskOwner) {
+        return emsTaskRepository.findByTaskOwner(taskOwner);
+    }
+
+    public List<EmsTask> getTasksByDepartment(String department) {
+        return emsTaskRepository.findByDepartment(department);
     }
 }
