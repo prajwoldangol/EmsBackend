@@ -7,6 +7,7 @@ import com.prajwol.entity.EmsEmployer;
 import com.prajwol.repository.EmsDepartmentRepo;
 import com.prajwol.repository.EmsEmployerRepo;
 import com.prajwol.userservice.IdObfuscationService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class EmsDepartmentServiceImpl implements EmsDepartmentService {
     private EmsDepartmentRepo emsDepartmentRepo;
     private EmsEmployerRepo emsEmployerRepo;
@@ -21,11 +23,11 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
     private IdMask<Long> idMask ;
 
     @Autowired
-    public EmsDepartmentServiceImpl(EmsDepartmentRepo emsDepartmentRepo, EmsEmployerRepo emsEmployerRepo, IdObfuscationService idObfuscationService, IdMask<Long> idMask) {
+    public EmsDepartmentServiceImpl(EmsDepartmentRepo emsDepartmentRepo, EmsEmployerRepo emsEmployerRepo, IdObfuscationService idObfuscationService) {
         this.emsDepartmentRepo = emsDepartmentRepo;
         this.emsEmployerRepo = emsEmployerRepo;
         this.idObfuscationService = idObfuscationService;
-        this.idMask = idMask;
+        this.idMask = idObfuscationService.idMask();
     }
 
     @Override
@@ -39,6 +41,7 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
             emsEmployer.ifPresent(emsDepartment::setEmsEmployer);
         }
         EmsDepartment savedDepartment = emsDepartmentRepo.save(emsDepartment);
+        log.info("A new Department is added for {}", emsDepartmentDto.getEmployerId());
         return savedDepartment ;
     }
 
