@@ -73,7 +73,7 @@ public class SecurityConfig {
 
     @Bean
     @Primary
-    @Qualifier("employerAuthenticationManager")
+//    @Qualifier("employerAuthenticationManager")
     public AuthenticationManager employerAuthenticationManager() {
         return new ProviderManager(List.of(employerAuthProvider()));
     }

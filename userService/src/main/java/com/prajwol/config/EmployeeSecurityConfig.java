@@ -70,7 +70,7 @@ public class EmployeeSecurityConfig {
     }
 
     @Bean
-    @Qualifier("employeeAuthenticationManager")
+//    @Qualifier("employeeAuthenticationManager")
     public AuthenticationManager employeeAuthenticationManager() {
         return new ProviderManager(List.of(employeeAuthProvider()));
     }

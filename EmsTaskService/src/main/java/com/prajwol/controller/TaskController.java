@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/todo")
+@RequestMapping("/board")
 public class TaskController {
     private EmsTaskService taskService;
 

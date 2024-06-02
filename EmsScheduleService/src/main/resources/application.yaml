@@ -1,6 +1,10 @@
 spring:
-  application:
-    name: SCHEDULE-SERVICE
+    data:
+      mongodb:
+        uri: mongodb+srv://dangolprajwol:silentkiller@cluster0.wtr6uro.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+        database: ems_scheduleDb
+    application:
+      name: SCHEDULE-SERVICE
 
 server:
   port: 8083
