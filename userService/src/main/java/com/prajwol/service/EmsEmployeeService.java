@@ -15,4 +15,6 @@ public interface EmsEmployeeService {
     public EmsEmployee createEmployee(EmsEmployeeDto em);
     UserAuthResDto loginEmployee(UserAuthReqDto userReqDto);
     public List<EmsEmployee> getAllEmployees(String employerId);
+    public void createEmployeeKafka(EmsEmployeeDto em);
+
 }

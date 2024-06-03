@@ -1,19 +1,28 @@
 package com.prajwol.controller;
 
+import com.prajwol.dto.EmailDto;
+import com.prajwol.service.EmsEmailService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/testing")
+@RequestMapping("/email")
 public class NotifyController {
-    @GetMapping("/hello")
-    public ResponseEntity<String> test(){
-        return ResponseEntity.ok("test passed" );
+    private EmsEmailService emsEmailService;
+    @Autowired
+    public NotifyController(EmsEmailService emsEmailService) {
+        this.emsEmailService = emsEmailService;
     }
-    @GetMapping("/hello2")
-    public String tests(){
-        return "HELLOW from Notify";
+
+    @PostMapping("/send")
+    public String sendEmail(@RequestBody EmailDto emailDto){
+        try{
+            emsEmailService.sendHtmlEmail(emailDto.getTo(), emailDto.getSubject(),emailDto.getBody());
+        }catch (Exception e){
+            return "Error sending email";
+        }
+        return "Email Sent";
     }
+
 }

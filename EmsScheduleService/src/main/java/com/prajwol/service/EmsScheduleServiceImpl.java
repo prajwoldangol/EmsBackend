@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,8 +111,11 @@ public class EmsScheduleServiceImpl implements EmsScheduleService{
                 .id(dto.getId())
                 .employerId(dto.getEmployerId())
                 .departmentId(dto.getDepartmentId())
-                .startDate(dto.getStartDate())
-                .endDate(dto.getEndDate())
+                .startDate(dto.getStartDate().truncatedTo(ChronoUnit.DAYS))
+                .endDate(dto.getEndDate().truncatedTo(ChronoUnit.DAYS)
+                        .plus(23, ChronoUnit.HOURS)
+                        .plus(59, ChronoUnit.MINUTES)
+                        .plus(59, ChronoUnit.SECONDS))
                 .employeeSchedules(employeeSchedules)
                 .build();
     }

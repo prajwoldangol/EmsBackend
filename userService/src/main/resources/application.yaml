@@ -4,6 +4,10 @@ spring:
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
+  kafka:
+    bootstrap-servers: https://kind-bedbug-5770-us1-kafka.upstash.io:9092
+    username: a2luZC1iZWRidWctNTc3MCQOtjI3Pp7DrGRlN4dSECG_7WL_eZCyzJ_pFsZzF2A
+    password: ZWYwZTlmOWUtYjkyYy00YzFkLTlkMDMtYzNmYjhjZTU0ODFl
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect

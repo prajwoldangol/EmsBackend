@@ -2,6 +2,7 @@ package com.prajwol.service;
 
 import at.favre.lib.idmask.IdMask;
 import com.prajwol.config.JwtTokenProvider;
+import com.prajwol.dto.EmsEmailDto;
 import com.prajwol.dto.EmsEmployeeDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
@@ -18,6 +19,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,8 +42,9 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
     private JwtTokenProvider jwtTokenProvider;
     private IdObfuscationService idObfuscationService;
     private IdMask<Long> idMask ;
+    private KafkaTemplate<String, EmsEmailDto> kafkaTemplate;
     @Autowired
-    public EmsEmployeeServiceImpl(@Qualifier("employeeAuthenticationManager") AuthenticationManager authenticationManager, EmsEmployeeRepo emsEmployeeRepo, EmsEmployerRepo emsEmployerRepo,  EmsDepartmentRepo emsDepartmentRepo, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, IdObfuscationService idObfuscationService) {
+    public EmsEmployeeServiceImpl(@Qualifier("employeeAuthenticationManager") AuthenticationManager authenticationManager, EmsEmployeeRepo emsEmployeeRepo, EmsEmployerRepo emsEmployerRepo,  EmsDepartmentRepo emsDepartmentRepo, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,KafkaTemplate<String, EmsEmailDto> kafkaTemplate, IdObfuscationService idObfuscationService) {
         this.emsEmployeeRepo = emsEmployeeRepo;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -50,6 +53,7 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
         this.emsEmployerRepo = emsEmployerRepo;
         this.emsDepartmentRepo = emsDepartmentRepo;
         this.idMask = idObfuscationService.idMask();
+        this.kafkaTemplate = kafkaTemplate;
     }
 
 
@@ -68,6 +72,7 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
         emsEmployeeRepo.deleteById(employerId);
     }
 
+
     @Override
     @Transactional
     public EmsEmployee createEmployee(EmsEmployeeDto em) {
@@ -79,12 +84,12 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
                 .role(EmsRole.EMPLOYEE)
                 .build();
         // setting employer
-        if(!em.getEmployerId().isEmpty()){
+        if( em.getEmployerId() != null && !em.getEmployerId().isEmpty()){
             Long employerId = idMask.unmask(em.getEmployerId());
             Optional<EmsEmployer> emsEmployer = emsEmployerRepo.findById(employerId);
             emsEmployer.ifPresent(e::setEmployerDetails);
         }
-        if(!em.getDepartmentId().isEmpty()){
+        if(em.getDepartmentId() !=null && !em.getDepartmentId().isEmpty()){
             Long departmentId = idMask.unmask(em.getDepartmentId());
             Optional<EmsDepartment> departmentById = emsDepartmentRepo.findById(departmentId);
             departmentById.ifPresent(e::setEmsDepartment);
@@ -122,5 +127,16 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
     @Override
     public List<EmsEmployee> getAllEmployees(String employerId) {
        return  emsEmployeeRepo.findByEmployerDetailsId(idMask.unmask(employerId));
+    }
+
+    @Override
+    public void createEmployeeKafka(EmsEmployeeDto em) {
+        EmsEmployee employee = createEmployee(em);
+        EmsEmailDto emailData = new EmsEmailDto().builder()
+                .to(employee.getUsername())
+                .subject("Your new Account info")
+                .body("Your username is " + employee.getUsername() + " Follow the link to reset password http://localhost:5173/reset-password?id=" + idMask.mask(employee.getId()))
+                .build();
+        kafkaTemplate.send("send-employee-email", emailData);
     }
 }

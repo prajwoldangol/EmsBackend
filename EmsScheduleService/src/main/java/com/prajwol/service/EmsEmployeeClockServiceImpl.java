@@ -5,15 +5,17 @@ import com.prajwol.entity.EmsEmployeeSchedule;
 import com.prajwol.entity.EmsSchedule;
 import com.prajwol.exception.EmsCustomException;
 import com.prajwol.repository.EmsEmployeeClockDataRepository;
-import org.bson.types.ObjectId;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Log4j2
 public class EmsEmployeeClockServiceImpl implements EmsEmployeeClockService {
     private final EmsEmployeeClockDataRepository emsEmployeeClockDataRepository;
     private final EmsScheduleService emsScheduleService;
@@ -25,13 +27,16 @@ public class EmsEmployeeClockServiceImpl implements EmsEmployeeClockService {
     }
     @Override
     public EmsEmployeeClockData getByIdAndEmployeeId(String employeeClockId, String employeeId) throws EmsCustomException {
-        ObjectId id = new ObjectId(employeeClockId);
-        return emsEmployeeClockDataRepository.findByIdAndEmployeeId(id, employeeId)
+//        ObjectId id = new ObjectId(employeeClockId);
+        return emsEmployeeClockDataRepository.findByIdAndEmployeeId(employeeClockId, employeeId)
                 .orElseThrow(() -> new EmsCustomException("Employee clock record not found", "404"));
     }
     @Override
-    public EmsEmployeeClockData clockIn(String employeeId, Instant clockInTime) throws EmsCustomException {
-        validateClockInTime(employeeId, clockInTime, "Clock-in");
+    public EmsEmployeeClockData clockIn(String employeeId,String employerId, Instant clockInTime) throws EmsCustomException {
+        log.info( "employeeId: " + employeeId );
+        log.info( "employerId: " + employerId );
+        log.info( "clockInTime: " + clockInTime );
+        validateClockInTime(employeeId, employerId, clockInTime, "Clock-in");
 
         EmsEmployeeClockData clock = new EmsEmployeeClockData().builder()
                 .clockInTime(clockInTime)
@@ -43,15 +48,17 @@ public class EmsEmployeeClockServiceImpl implements EmsEmployeeClockService {
     @Override
     public EmsEmployeeClockData clockOut(String employeeId, Instant clockOutTime) throws EmsCustomException {
         EmsEmployeeClockData clock = getLastActiveClock(employeeId);
+        log.info( "clockOutTime: " + clockOutTime );
         clock.setClockOutTime(clockOutTime);
-
+        log.info( "clockupdateed: " + clock );
         return emsEmployeeClockDataRepository.save(clock);
     }
     @Override
-    public EmsEmployeeClockData breakIn(String employeeId, Instant breakInTime) throws EmsCustomException {
-        validateClockInTime(employeeId, breakInTime, "Break-in");
-
+    public EmsEmployeeClockData breakIn(String employeeId, String employerId, Instant breakInTime) throws EmsCustomException {
+        validateClockInTime(employeeId,employerId, breakInTime, "Break-in");
+        log.info("here");
         EmsEmployeeClockData clock = getLastActiveClock(employeeId);
+        log.info(clock);
         clock.setBreakInTime(breakInTime);
 
         return emsEmployeeClockDataRepository.save(clock);
@@ -69,20 +76,23 @@ public class EmsEmployeeClockServiceImpl implements EmsEmployeeClockService {
         Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
 
         // Retrieve today's clock-in record for the specified employee
-        EmsEmployeeClockData lastClock = emsEmployeeClockDataRepository.findByEmployeeIdAndTodayDate(employeeId, today);
-
+        Optional<EmsEmployeeClockData> lastClock = emsEmployeeClockDataRepository.findByEmployeeIdAndTodayDate(employeeId, today);
+        log.info(lastClock.toString());
         // Check if a clock-in record exists for today
-        if (lastClock == null || lastClock.getClockOutTime() != null) {
+//        if (lastClock == null || lastClock.getClockOutTime() != null) {
+//            throw new EmsCustomException("No active clock-in found to clock out from", "403");
+//        }
+        if (lastClock.isEmpty()) {
             throw new EmsCustomException("No active clock-in found to clock out from", "403");
         }
-        return lastClock;
+        return lastClock.get();
     }
 
 
-    private void validateClockInTime(String employeeId, Instant clockInTime, String clockType) throws EmsCustomException {
+    private void validateClockInTime(String employeeId, String employerId, Instant clockInTime, String clockType) throws EmsCustomException {
 // Fetch today's schedule
-        List<EmsSchedule> schedules = emsScheduleService.getSchedulesWithEndDateInFuture(employeeId); // Update with actual employerId
-
+        List<EmsSchedule> schedules = emsScheduleService.getSchedulesWithEndDateInFuture(employerId); // Update with actual employerId
+        log.info(schedules);
         // Check if the employee is scheduled for today
         Instant today = Instant.now().truncatedTo(ChronoUnit.DAYS);
         boolean isScheduledForToday = schedules.stream()

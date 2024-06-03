@@ -14,7 +14,7 @@ public interface EmsEmployeeClockDataRepository extends MongoRepository<EmsEmplo
 
     List<EmsEmployeeClockData> findByEmployeeIdAndClockOutTimeBetween(String employeeId, Instant startOfToday, Instant endOfToday);
 
-    EmsEmployeeClockData findByEmployeeIdAndTodayDate(String employeeId, Instant today);
+    Optional<EmsEmployeeClockData> findByEmployeeIdAndTodayDate(String employeeId, Instant today);
 
-    Optional<EmsEmployeeClockData> findByIdAndEmployeeId(ObjectId id, String employeeId);
+    Optional<EmsEmployeeClockData> findByIdAndEmployeeId(String id, String employeeId);
 }

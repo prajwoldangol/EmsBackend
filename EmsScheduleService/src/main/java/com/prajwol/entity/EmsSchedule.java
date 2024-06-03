@@ -15,6 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Document(collection = "schedules")
 public class EmsSchedule {
     @Id

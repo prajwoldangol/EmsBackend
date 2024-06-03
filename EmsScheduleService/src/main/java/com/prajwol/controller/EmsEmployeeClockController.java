@@ -1,8 +1,12 @@
 package com.prajwol.controller;
 
+import com.prajwol.dto.EmsEmployeeClockDto;
+import com.prajwol.dto.EmsInstantDto;
 import com.prajwol.entity.EmsEmployeeClockData;
+import com.prajwol.exception.EmsCustomErrorResponse;
 import com.prajwol.exception.EmsCustomException;
 import com.prajwol.service.EmsEmployeeClockService;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,7 @@ import java.time.Instant;
 
 @RestController
 @RequestMapping("/clock")
+@Log4j2
 public class EmsEmployeeClockController {
     private final EmsEmployeeClockService employeeClockService;
 
@@ -21,51 +26,58 @@ public class EmsEmployeeClockController {
     }
 
     @PostMapping("/clockin/{employeeId}")
-    public ResponseEntity<EmsEmployeeClockData> clockIn(@PathVariable String employeeId, @RequestBody Instant clockInTime) {
+    public ResponseEntity<?> clockIn(@PathVariable String employeeId, @RequestBody EmsEmployeeClockDto emsEmployeeClockDto) {
         try {
-            EmsEmployeeClockData clock = employeeClockService.clockIn(employeeId, clockInTime);
+            log.info(emsEmployeeClockDto);
+            EmsEmployeeClockData clock = employeeClockService.clockIn(employeeId,emsEmployeeClockDto.getEmployerId(), emsEmployeeClockDto.getClockInTime());
             return ResponseEntity.ok(clock);
         } catch (EmsCustomException e) {
-            return ResponseEntity.status(Integer.parseInt(e.getErrorCode())).body(null);
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 
-    @PostMapping("/clockout/{employeeId}")
-    public ResponseEntity<EmsEmployeeClockData> clockOut(@PathVariable String employeeId, @RequestBody Instant clockOutTime) {
+    @PutMapping("/clockout/{employeeId}")
+    public ResponseEntity<?> clockOut(@PathVariable String employeeId, @RequestBody EmsInstantDto emsInstantDto) {
         try {
-            EmsEmployeeClockData clock = employeeClockService.clockOut(employeeId, clockOutTime);
+            log.info(emsInstantDto.getTime());
+            EmsEmployeeClockData clock = employeeClockService.clockOut(employeeId, emsInstantDto.getTime() );
             return ResponseEntity.ok(clock);
         } catch (EmsCustomException e) {
-            return ResponseEntity.status(Integer.parseInt(e.getErrorCode())).body(null);
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 
-    @PostMapping("/breakin/{employeeId}")
-    public ResponseEntity<EmsEmployeeClockData> breakIn(@PathVariable String employeeId, @RequestBody Instant breakInTime) {
+    @PutMapping("/breakin/{employeeId}")
+    public ResponseEntity<?> breakIn(@PathVariable String employeeId, @RequestBody EmsEmployeeClockDto emsEmployeeClockDto) {
         try {
-            EmsEmployeeClockData clock = employeeClockService.breakIn(employeeId, breakInTime);
+            EmsEmployeeClockData clock = employeeClockService.breakIn(employeeId, emsEmployeeClockDto.getEmployerId(), emsEmployeeClockDto.getClockInTime());
             return ResponseEntity.ok(clock);
         } catch (EmsCustomException e) {
-            return ResponseEntity.status(Integer.parseInt(e.getErrorCode())).body(null);
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 
-    @PostMapping("/breakout/{employeeId}")
-    public ResponseEntity<EmsEmployeeClockData> breakOut(@PathVariable String employeeId, @RequestBody Instant breakOutTime) {
+    @PutMapping("/breakout/{employeeId}")
+    public ResponseEntity<?> breakOut(@PathVariable String employeeId,  @RequestBody EmsInstantDto emsInstantDto) {
         try {
-            EmsEmployeeClockData clock = employeeClockService.breakOut(employeeId, breakOutTime);
+            EmsEmployeeClockData clock = employeeClockService.breakOut(employeeId, emsInstantDto.getTime());
             return ResponseEntity.ok(clock);
         } catch (EmsCustomException e) {
-            return ResponseEntity.status(Integer.parseInt(e.getErrorCode())).body(null);
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
     @GetMapping("/{id}/{employeeId}")
-    public ResponseEntity<EmsEmployeeClockData> getByIdAndEmployeeId(@PathVariable String id, @PathVariable String employeeId) {
+    public ResponseEntity<?> getByIdAndEmployeeId(@PathVariable String id, @PathVariable String employeeId) {
         try {
             EmsEmployeeClockData clock = employeeClockService.getByIdAndEmployeeId(id, employeeId);
             return ResponseEntity.ok(clock);
         } catch (EmsCustomException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 }
