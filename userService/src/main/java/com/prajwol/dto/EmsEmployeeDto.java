@@ -10,7 +10,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmsEmployeeDto {
-    private long id;
+    private Long id;
     private String password;
     private String username;
     private String phone;
@@ -18,4 +18,5 @@ public class EmsEmployeeDto {
     private String role;
     private String employerId;
     private String departmentId;
+    private EmsUserDetailDto userDetailDto;
 }

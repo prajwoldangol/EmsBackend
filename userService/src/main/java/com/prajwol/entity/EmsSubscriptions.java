@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Setter
@@ -12,15 +12,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Builder
 public class EmsSubscriptions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private LocalDateTime paidOn;
-    private LocalDateTime expiringOn;
+    private Instant paidOn;
+    private Instant expiringOn;
     private String payCycle;
     private String paymentMethod;
-    private BigDecimal paymentAmount;
+    private Integer paymentAmount;
     @ManyToOne
     @JoinColumn(name = "subscriber_id")
     private EmsEmployer emsSubscriber;

@@ -1,8 +1,11 @@
 package com.prajwol.controller;
 
+import com.prajwol.dto.EmsEmployeeDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployee;
+import com.prajwol.exception.EmsCustomErrorResponse;
+import com.prajwol.exception.EmsCustomException;
 import com.prajwol.service.EmsEmployeeService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,8 +43,25 @@ public class EmsEmployeeController {
         return ResponseEntity.ok(emsEmployeeService.registerEmployee(emsEmployee));
     }
 
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Coming form employee testing passed");
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmployee(@PathVariable String id, @RequestBody EmsEmployeeDto em) {
+        try{
+            EmsEmployee updatedEmployee = emsEmployeeService.updateEmployee(id, em);
+            return ResponseEntity.ok(updatedEmployee);
+        }catch (EmsCustomException e){
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+
+    }
+    @PutMapping("/{empId}/password")
+    public ResponseEntity<?> updateEmployeePassword(@PathVariable String empId, @RequestBody String newPassword) {
+        try {
+            EmsEmployee updatedEmployee = emsEmployeeService.updateEmployeePassword(empId, newPassword);
+            return ResponseEntity.ok(updatedEmployee);
+        } catch (EmsCustomException e) {
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
     }
 }
