@@ -189,6 +189,7 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
         EmsEmployee employee = createEmployee(em);
         EmsEmailDto emailData = new EmsEmailDto().builder()
                 .to(employee.getUsername())
+                .phone(employee.getPhone())
                 .subject("Your new Account info")
                 .body("Your username is " + employee.getUsername() + " Follow the link to reset password http://localhost:5173/reset-password?id=" + idMask.mask(employee.getId()))
                 .build();
