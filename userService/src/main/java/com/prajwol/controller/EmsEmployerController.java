@@ -1,11 +1,13 @@
 package com.prajwol.controller;
 
+import com.prajwol.dto.EmsEmployeeDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployer;
 import com.prajwol.entity.EmsRole;
 import com.prajwol.exception.EmsCustomErrorResponse;
 import com.prajwol.exception.EmsCustomException;
+import com.prajwol.service.EmsEmployeeService;
 import com.prajwol.service.EmsEmployerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,11 +17,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/employer")
 public class EmsEmployerController {
-    private EmsEmployerService emsEmployerService;
-
+    private final EmsEmployerService emsEmployerService;
+    private final EmsEmployeeService emsEmployeeService;
     @Autowired
-    public EmsEmployerController(EmsEmployerService emsEmployerService) {
+    public EmsEmployerController(EmsEmployerService emsEmployerService, EmsEmployeeService emsEmployeeService) {
         this.emsEmployerService = emsEmployerService;
+        this.emsEmployeeService = emsEmployeeService;
     }
     @PostMapping("/login")
     public ResponseEntity<UserAuthResDto> login(@RequestBody UserAuthReqDto employerReqDto) {
@@ -67,6 +70,10 @@ public class EmsEmployerController {
     public ResponseEntity<Void> deleteEmployer(@PathVariable("empId") Long employerId) {
         emsEmployerService.deleteEmployer(employerId);
         return ResponseEntity.noContent().build();
+    }
+    @PostMapping("/newEmployee")
+    public void addNewEmployee(@RequestBody EmsEmployeeDto emsEmployee) {
+        emsEmployeeService.createEmployeeKafka(emsEmployee);
     }
 }
 
