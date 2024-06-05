@@ -27,21 +27,24 @@ public class EmsUserTokeServiceImpl implements EmsUserTokenService {
     }
 
     @Override
-    public Optional<EmsUserToken> getByTokenAndUserId(String token, String userId) {
-        return emsUserTokenRepo.findByTokenAndUserId(token, userId);
+    public EmsUserToken getByTokenAndUserId(String token, String userId) throws EmsCustomException {
+        return emsUserTokenRepo.findByTokenAndUserId(token, userId).orElseThrow(() -> new EmsCustomException("Token not found", "404"));
     }
 
     @Override
-    public boolean checkExpiration(String token) throws EmsCustomException {
-        Optional<EmsUserToken> optionalToken = emsUserTokenRepo.findByToken(token);
-        if (optionalToken.isEmpty()) {
-            throw new EmsCustomException("Token not found", "TOKEN_NOT_FOUND");
-        }
-        EmsUserToken emsUserToken = optionalToken.get();
-        if (Instant.now().isAfter(emsUserToken.getExpiresAt())) {
-            throw new EmsCustomException("Token has expired", "TOKEN_EXPIRED");
-        }
-        return false;
+    public boolean checkExpiration(EmsUserToken token) throws EmsCustomException {
+//        Optional<EmsUserToken> optionalToken = emsUserTokenRepo.findByToken(token);
+//        if (optionalToken.isEmpty()) {
+//            throw new EmsCustomException("Token not found", "TOKEN_NOT_FOUND");
+//        }
+//        EmsUserToken emsUserToken = optionalToken.get();
+//        if (Instant.now().isAfter(emsUserToken.getExpiresAt())) {
+//            throw new EmsCustomException("Token has expired", "TOKEN_EXPIRED");
+//        }
+//        return false;
+//        EmsUserToken emsUserToken = emsUserTokenRepo.findByToken(token)
+//                .orElseThrow(() -> new EmsCustomException("Token not found", "TOKEN_NOT_FOUND"));
+        return Instant.now().isAfter(token.getExpiresAt());
     }
 
     @Override

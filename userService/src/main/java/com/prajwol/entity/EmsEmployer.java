@@ -1,5 +1,7 @@
 package com.prajwol.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Builder
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class EmsEmployer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

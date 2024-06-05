@@ -1,5 +1,6 @@
 package com.prajwol.service;
 
+import com.prajwol.dto.EmsTokenDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployer;
@@ -14,7 +15,9 @@ public interface EmsEmployerService {
     public void deleteEmployer(Long employerId);
     UserAuthResDto loginEmployer(UserAuthReqDto employerReqDto);
 
-    public EmsEmployer updateEmployeePassword(String empId, String newPassword) throws EmsCustomException;
-    public EmsEmployer updateEmployee(String empId, EmsEmployer em) throws EmsCustomException;
+    public EmsEmployer updateEmployerPassword(String empId, String newPassword) throws EmsCustomException;
+    public EmsEmployer updateEmployer(String empId, EmsEmployer em) throws EmsCustomException;
     public EmsEmployer updateEmployeeRole(String empId, EmsRole role) throws EmsCustomException;
+    public boolean generateToken(String empId);
+    public boolean verifyTokenAndUpdatePassword(String userId, EmsTokenDto emsTokenDto) throws EmsCustomException;
 }

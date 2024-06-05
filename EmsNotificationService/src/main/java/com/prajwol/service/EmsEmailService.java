@@ -5,6 +5,7 @@ import com.prajwol.dto.EmsPhoneVerifyDto;
 import com.prajwol.feing.EmsPhoneVerifyService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -13,9 +14,12 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
+@Log4j2
 public class EmsEmailService {
     private JavaMailSender javaMailSender;
     private EmsPhoneVerifyService emsPhoneVerifyService;
@@ -29,10 +33,20 @@ public class EmsEmailService {
         // Process the received message and send notification emails
         sendHtmlEmail(emailDto.getTo(), emailDto.getSubject(), emailDto.getBody());
         // sms
-        List<String> countries = Arrays.asList("US", "UK", "CA");
+        String email_to = "";
+
+        List<String> countries = Arrays.asList("US");
         EmsPhoneVerifyDto data =  emsPhoneVerifyService.verifyPhone(emailDto.getPhone(),countries);
-        if(data != null && data.isValid()) {
-            sendHtmlEmail(data.getSms_email(), emailDto.getSubject(), emailDto.getBody());
+        log.info("SMS: " + data.getSms_email());
+        log.info("Phone is valid: " + data.isValid());
+        log.info("domain" +data.getSms_domain()) ;
+        if (data != null && data.isValid()) {
+            String emailTo = "N/A".equals(data.getSms_email()) ?
+                    ("N/A".equals(data.getSms_domain()) ? null : emailDto.getPhone() + "@" + data.getSms_domain())
+                    : data.getSms_email();
+            if (emailTo != null) {
+                sendHtmlEmail(emailTo, emailDto.getSubject(), emailDto.getBody());
+            }
         }
     }
 
@@ -45,4 +59,21 @@ public class EmsEmailService {
         helper.setText(body,true);
         javaMailSender.send(msg);
     }
+
+//    private String getCarrierEmail(String carrier){
+//        Map<String,String> carriersList = new HashMap<>();
+////        "@txt.att.net"
+////        @sms.myboostmobile.com
+//        //@sms.cricketwireless.net
+//        //@msg.fi.google.com
+//        //@mymetropcs.com
+//        //@messaging.sprintpcs.com
+//        //@tmomail.net
+//        //@email.uscc.net
+//        //@vtext.com
+//        //@vtext.com -> xfinity
+//        //@vmobl.com
+//
+//        return null;
+//    }
 }

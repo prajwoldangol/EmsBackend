@@ -23,15 +23,15 @@ public class EmsDepartmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<EmsDepartment>> getAllDepartments() {
-        List<EmsDepartment> departments = emsDepartmentService.getAllDepartments();
+    public ResponseEntity<List<EmsDepartmentDto>> getAllDepartments() {
+        List<EmsDepartmentDto> departments = emsDepartmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getDepartmentById(@PathVariable String id) {
         try {
-            EmsDepartment department = emsDepartmentService.getDepartmentById(id);
+            EmsDepartmentDto department = emsDepartmentService.getDepartmentById(id);
             return ResponseEntity.ok(department);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
@@ -40,15 +40,15 @@ public class EmsDepartmentController {
     }
 
     @PostMapping
-    public ResponseEntity<EmsDepartment> createDepartment(@RequestBody EmsDepartmentDto emsDepartmentDto) {
-        EmsDepartment createdDepartment = emsDepartmentService.createDepartment(emsDepartmentDto);
+    public ResponseEntity<EmsDepartmentDto> createDepartment(@RequestBody EmsDepartmentDto emsDepartmentDto) {
+        EmsDepartmentDto createdDepartment = emsDepartmentService.createDepartment(emsDepartmentDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdDepartment);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDepartment(@PathVariable String id, @RequestBody EmsDepartmentDto emsDepartmentDto) {
         try {
-            EmsDepartment updatedDepartment = emsDepartmentService.updateDepartment(id, emsDepartmentDto);
+            EmsDepartmentDto updatedDepartment = emsDepartmentService.updateDepartment(id, emsDepartmentDto);
             return ResponseEntity.ok(updatedDepartment);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());

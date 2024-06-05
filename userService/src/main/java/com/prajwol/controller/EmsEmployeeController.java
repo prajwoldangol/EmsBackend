@@ -1,6 +1,7 @@
 package com.prajwol.controller;
 
 import com.prajwol.dto.EmsEmployeeDto;
+import com.prajwol.dto.EmsTokenDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployee;
@@ -62,6 +63,26 @@ public class EmsEmployeeController {
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+    @PostMapping("/generateToken/{empId}")
+    public ResponseEntity<String> generateToken(@PathVariable String empId) {
+        return emsEmployeeService.generateToken(empId) ?
+                ResponseEntity.ok("Token generated successfully") :
+                ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate token");
+
+    }
+
+    @PostMapping("/updatePassword/{userId}")
+    public ResponseEntity<Object> verifyTokenAndUpdatePassword(@PathVariable String userId, @RequestBody EmsTokenDto emsTokenDto) {
+        try {
+            boolean isPasswordUpdated = emsEmployeeService.verifyTokenAndUpdatePassword(userId, emsTokenDto);
+            return isPasswordUpdated ?
+                    ResponseEntity.ok("Password updated successfully") :
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token is expired or invalid");
+        } catch (EmsCustomException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage()));
         }
     }
 }

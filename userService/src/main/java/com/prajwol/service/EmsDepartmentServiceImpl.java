@@ -2,6 +2,7 @@ package com.prajwol.service;
 
 import at.favre.lib.idmask.IdMask;
 import com.prajwol.dto.EmsDepartmentDto;
+import com.prajwol.dto.dtoservice.EmsEmployeeConverter;
 import com.prajwol.entity.EmsDepartment;
 import com.prajwol.entity.EmsEmployer;
 import com.prajwol.exception.EmsCustomException;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -33,7 +35,7 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
     }
 
     @Override
-    public EmsDepartment createDepartment(EmsDepartmentDto emsDepartmentDto) {
+    public EmsDepartmentDto createDepartment(EmsDepartmentDto emsDepartmentDto) {
         EmsDepartment emsDepartment = new EmsDepartment();
 //        EmsDepartment emsDepartment = new EmsDepartment().builder()
 //                .name(emsDepartmentDto.getName())
@@ -46,7 +48,7 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
         setCommonFields(emsDepartment, emsDepartmentDto);
         EmsDepartment savedDepartment = emsDepartmentRepo.save(emsDepartment);
         log.info("A new Department is added for {}", emsDepartmentDto.getEmployerId());
-        return savedDepartment ;
+        return EmsEmployeeConverter.toDtoDept(savedDepartment);
     }
 
     @Override
@@ -55,12 +57,15 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
     }
 
     @Override
-    public List<EmsDepartment> getAllDepartments() {
-        return emsDepartmentRepo.findAll();
+    public List<EmsDepartmentDto> getAllDepartments() {
+        List<EmsDepartment> all = emsDepartmentRepo.findAll();
+        return all.stream()
+                .map(EmsEmployeeConverter::toDtoDept)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public EmsDepartment updateDepartment(String id, EmsDepartmentDto emsDepartmentDto) throws EmsCustomException {
+    public EmsDepartmentDto updateDepartment(String id, EmsDepartmentDto emsDepartmentDto) throws EmsCustomException {
         Long departmentId = idMask.unmask(id);
         EmsDepartment existingDepartment = emsDepartmentRepo.findById(departmentId)
                 .orElseThrow(() -> new EmsCustomException("Department not found", "404"));
@@ -75,13 +80,16 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
         setCommonFields(existingDepartment, emsDepartmentDto);
         EmsDepartment updatedDepartment = emsDepartmentRepo.save(existingDepartment);
         log.info("Department with id {} has been updated", id);
-        return updatedDepartment;
+        return EmsEmployeeConverter.toDtoDept(updatedDepartment);
     }
 
     @Override
-    public EmsDepartment getDepartmentById(String id) throws EmsCustomException {
-        Optional<EmsDepartment> byId = emsDepartmentRepo.findById(idMask.unmask(id));
-        return byId.orElseThrow(() -> new EmsCustomException("Department not found", "404"));
+    public EmsDepartmentDto getDepartmentById(String id) throws EmsCustomException {
+        EmsDepartment department = emsDepartmentRepo.findById(idObfuscationService.idMask().unmask(id))
+                .orElseThrow(() -> new EmsCustomException("Department not found", "404"));
+        return EmsEmployeeConverter.toDtoDept(department);
+//        Optional<EmsDepartment> byId = emsDepartmentRepo.findById(idMask.unmask(id));
+//        return byId.orElseThrow(() -> new EmsCustomException("Department not found", "404"));
     }
 
     private void setCommonFields(EmsDepartment department, EmsDepartmentDto dto) {

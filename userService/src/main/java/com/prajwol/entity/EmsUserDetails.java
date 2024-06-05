@@ -13,6 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @ToString
 @Builder
+
 public class EmsUserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

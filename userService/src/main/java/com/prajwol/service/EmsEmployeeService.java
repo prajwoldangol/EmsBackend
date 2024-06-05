@@ -1,9 +1,11 @@
 package com.prajwol.service;
 
 import com.prajwol.dto.EmsEmployeeDto;
+import com.prajwol.dto.EmsTokenDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
 import com.prajwol.entity.EmsEmployee;
+import com.prajwol.entity.EmsUserToken;
 import com.prajwol.exception.EmsCustomException;
 
 import java.util.List;
@@ -16,7 +18,10 @@ public interface EmsEmployeeService {
     public EmsEmployee createEmployee(EmsEmployeeDto em);
     UserAuthResDto loginEmployee(UserAuthReqDto userReqDto);
     public List<EmsEmployee> getAllEmployees(String employerId);
-    public void createEmployeeKafka(EmsEmployeeDto em);
+    public EmsEmployeeDto createEmployeeKafka(EmsEmployeeDto em);
     public EmsEmployee updateEmployee(String empId, EmsEmployeeDto em) throws EmsCustomException;
     public EmsEmployee updateEmployeePassword(String empId, String newPassword) throws EmsCustomException;
+
+    public boolean generateToken(String empId);
+    public boolean verifyTokenAndUpdatePassword(String token, EmsTokenDto emsTokenDto) throws EmsCustomException;
 }

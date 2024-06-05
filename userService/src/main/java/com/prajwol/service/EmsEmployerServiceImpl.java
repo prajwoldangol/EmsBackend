@@ -2,12 +2,11 @@ package com.prajwol.service;
 
 import at.favre.lib.idmask.IdMask;
 import com.prajwol.config.JwtTokenProvider;
+import com.prajwol.dto.EmsEmailDto;
+import com.prajwol.dto.EmsTokenDto;
 import com.prajwol.dto.UserAuthReqDto;
 import com.prajwol.dto.UserAuthResDto;
-import com.prajwol.entity.EmsEmployee;
-import com.prajwol.entity.EmsEmployer;
-import com.prajwol.entity.EmsRole;
-import com.prajwol.entity.EmsUserDetails;
+import com.prajwol.entity.*;
 import com.prajwol.exception.EmsCustomException;
 import com.prajwol.repository.EmsEmployerRepo;
 import com.prajwol.userservice.IdObfuscationService;
@@ -16,11 +15,13 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -35,12 +36,16 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
     private JwtTokenProvider jwtTokenProvider;
     private IdObfuscationService idObfuscationService;
     private IdMask<Long> idMask ;
+    private final KafkaTemplate<String, EmsEmailDto> kafkaTemplate;
+    private final EmsUserTokenService emsUserTokenService;
     @Autowired
-    public EmsEmployerServiceImpl(@Qualifier("employerAuthenticationManager") AuthenticationManager authenticationManager, EmsEmployerRepo emsEmployerRepo, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider,  IdObfuscationService idObfuscationService) {
+    public EmsEmployerServiceImpl(@Qualifier("employerAuthenticationManager") AuthenticationManager authenticationManager, EmsEmployerRepo emsEmployerRepo, PasswordEncoder passwordEncoder,EmsUserTokenService emsUserTokenService, JwtTokenProvider jwtTokenProvider, KafkaTemplate<String, EmsEmailDto> kafkaTemplate, IdObfuscationService idObfuscationService) {
         this.emsEmployerRepo = emsEmployerRepo;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.emsUserTokenService = emsUserTokenService;
+        this.kafkaTemplate = kafkaTemplate;
         this.idObfuscationService = idObfuscationService;
         this.idMask = idObfuscationService.idMask();
     }
@@ -48,6 +53,7 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
     public EmsEmployer registerEmployer(EmsEmployer em) {
         em.setPassword(passwordEncoder.encode(em.getPassword()));
         em.setRole(EmsRole.USER);
+        em.setSignedUpDate(Instant.now());
         EmsEmployer emp = emsEmployerRepo.save(em);
         log.info("Employer registered successfully");
         return emp;
@@ -89,9 +95,9 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
     }
 
     @Override
-    public EmsEmployer updateEmployeePassword(String empId, String newPassword) throws EmsCustomException {
+    public EmsEmployer updateEmployerPassword(String empId, String newPassword) throws EmsCustomException {
         EmsEmployer e = emsEmployerRepo.findById(idMask.unmask(empId))
-                .orElseThrow(() -> new EmsCustomException("Employee with id " + empId + " not found.", "404"));
+                .orElseThrow(() -> new EmsCustomException("Employer with id " + empId + " not found.", "404"));
 
         // Encode the new password
         String encodedPassword = passwordEncoder.encode(newPassword);
@@ -103,7 +109,7 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
     }
 
     @Override
-    public EmsEmployer updateEmployee(String empId, EmsEmployer em) throws EmsCustomException {
+    public EmsEmployer updateEmployer(String empId, EmsEmployer em) throws EmsCustomException {
         EmsEmployer e = emsEmployerRepo.findById(idMask.unmask(empId))
                 .orElseThrow(() -> new EmsCustomException("Employee with id " + em.getId() + " not found.", "404"));
         FieldUtils.updateFieldIfPresent(em.getUsername(), e::setUsername, FieldUtils.NOT_EMPTY_STRING);
@@ -126,5 +132,48 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
         FieldUtils.updateFieldIfPresent(role, e::setRole, Objects::nonNull); // Update role
 
         return emsEmployerRepo.save(e); // Save and return the updated employer
+    }
+
+    @Override
+    public boolean generateToken(String empId) {
+        EmsUserToken emsUserToken = emsUserTokenService.generateToken(empId);
+        if (emsUserToken == null) {
+            return false;
+        }
+        Optional<EmsEmployer> employeeOptional = getEmployerbyId(emsUserToken.getId());
+        if (employeeOptional.isPresent()) {
+            EmsEmployer employer = employeeOptional.get();
+            EmsEmailDto emailData = EmsEmailDto.builder()
+                    .to(employer.getUsername())
+                    .phone(employer.getPhone())
+                    .subject("Your Token Code For Password Reset")
+                    .body("Your code is " + emsUserToken.getToken() +
+                            ". Proceed to password reset through this link http://localhost:5173/reset-password?user=" +
+                            idMask.mask(employer.getId()) + " or continue on your previous page.")
+                    .build();
+            kafkaTemplate.send("send-employee-email", emailData);
+            return true;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean verifyTokenAndUpdatePassword(String userId, EmsTokenDto emsTokenDto) throws EmsCustomException {
+        try{
+            EmsUserToken byTokenAndUserId = emsUserTokenService.getByTokenAndUserId(emsTokenDto.getToken(), userId);
+            if(! emsUserTokenService.checkExpiration(byTokenAndUserId)){
+                //update password
+                updateEmployerPassword(userId, emsTokenDto.getPassword());
+                //delete token
+                emsUserTokenService.deleteByTokenId(byTokenAndUserId.getId());
+                return true;
+            }
+        }catch (EmsCustomException e){
+            throw e;
+        }catch(Exception e){
+            throw new EmsCustomException("An error occurred while processing", "404");
+        }
+        return false;
     }
 }
