@@ -20,7 +20,7 @@ public class EmsEmployeeMgmtController {
         this.emsEmployeeService = emsEmployeeService;
     }
     @PostMapping("/add")
-    public void addNewEmployee(@RequestBody EmsEmployeeDto emsEmployee) {
-       emsEmployeeService.createEmployeeKafka(emsEmployee);
+    public ResponseEntity<EmsEmployeeDto> addNewEmployee(@RequestBody EmsEmployeeDto emsEmployee) {
+        return ResponseEntity.ok( emsEmployeeService.createEmployeeKafka(emsEmployee));
     }
 }

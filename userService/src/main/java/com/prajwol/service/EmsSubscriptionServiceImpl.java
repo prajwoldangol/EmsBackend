@@ -50,7 +50,7 @@ public class EmsSubscriptionServiceImpl implements EmsSubscriptionService {
                 .build();
         if( subscription.getEmsSubscriberId() != null){
             Long id = idMask.unmask(subscription.getEmsSubscriberId());
-            emsEmployerService.getEmployerbyId(id)
+            emsEmployerService.getById(id)
                     .ifPresent(sub::setEmsSubscriber);
         }
         return emsSubscriptionsRepo.save(sub);

@@ -3,7 +3,7 @@ package com.prajwol.service;
 import at.favre.lib.idmask.IdMask;
 import com.prajwol.config.JwtTokenProvider;
 import com.prajwol.dto.*;
-import com.prajwol.dto.dtoservice.EmsEmployeeConverter;
+import com.prajwol.dto.dtoservice.EmsEntityDtoConverter;
 import com.prajwol.entity.*;
 import com.prajwol.exception.EmsCustomException;
 import com.prajwol.repository.EmsDepartmentRepo;
@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -57,25 +58,27 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
     }
 
 
-    public EmsEmployee registerEmployee(EmsEmployee em) {
+    public EmsEmployeeDto registerEmployee(EmsEmployee em) {
         em.setPassword(em.getPassword() != null ? passwordEncoder.encode(em.getPassword()) : passwordEncoder.encode(em.getPhone()));
         EmsEmployee e = emsEmployeeRepo.save(em);
         log.info("Employee registered successfully");
-        return e;
+        return EmsEntityDtoConverter.toDto(e);
     }
 
-    public Optional<EmsEmployee> getEmployeebyId(long id) {
-        return emsEmployeeRepo.findById(id);
+    public Optional<EmsEmployeeDto> getEmployeebyId(String id) throws EmsCustomException {
+        return Optional.ofNullable(emsEmployeeRepo.findById(idObfuscationService.idMask().unmask(id))
+                .map(EmsEntityDtoConverter::toDto)
+                .orElseThrow(() -> new EmsCustomException("Employee not found", "404")));
     }
 
-    public void deleteEmployee(Long employerId) {
-        emsEmployeeRepo.deleteById(employerId);
+    public void deleteEmployee(String employerId) {
+        emsEmployeeRepo.deleteById(idObfuscationService.idMask().unmask(employerId));
     }
 
 
     @Override
     @Transactional
-    public EmsEmployee createEmployee(EmsEmployeeDto em) {
+    public EmsEmployeeDto createEmployee(EmsEmployeeDto em) {
         EmsEmployee e = new EmsEmployee().builder()
                 .username(em.getUsername())
                 .password(em.getPassword() != null ? passwordEncoder.encode(em.getPassword()) : passwordEncoder.encode(em.getPhone()))
@@ -104,18 +107,18 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
 //        }
         EmsEmployee savedEmployee = emsEmployeeRepo.save(e);
         log.info("Employee registered successfully");
-        return savedEmployee;
+        return EmsEntityDtoConverter.toDto(savedEmployee);
     }
 
     @Override
     @Transactional
-    public EmsEmployee updateEmployee(String empId, EmsEmployeeDto em) throws EmsCustomException {
+    public EmsEmployeeDto updateEmployee(String empId, EmsEmployeeDto em) throws EmsCustomException {
         EmsEmployee e = emsEmployeeRepo.findById(idMask.unmask(empId))
                 .orElseThrow(() -> new EmsCustomException("Employee with id " + em.getId() + " not found.", "404"));
 
         // Updating fields using FieldUtils
         FieldUtils.updateFieldIfPresent(em.getUsername(), e::setUsername, FieldUtils.NOT_EMPTY_STRING);
-        String encodedPassword = em.getPassword() != null ? passwordEncoder.encode(em.getPassword()) : passwordEncoder.encode(em.getPhone());
+        String encodedPassword = em.getPassword() != null ? passwordEncoder.encode(em.getPassword()) : e.getPassword();
         FieldUtils.updateFieldIfPresent(encodedPassword, e::setPassword, Objects::nonNull);
         FieldUtils.updateFieldIfPresent(em.getPhone(), e::setPhone, FieldUtils.NOT_EMPTY_STRING);
         FieldUtils.updateFieldIfPresent(em.getFirstName(), e::setFirstName, FieldUtils.NOT_EMPTY_STRING);
@@ -151,12 +154,12 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
 
         EmsEmployee savedEmployee = emsEmployeeRepo.save(e);
         log.info("Employee with id " + em.getId() + " updated successfully");
-        return savedEmployee;
+        return EmsEntityDtoConverter.toDto(savedEmployee);
     }
 
     @Override
     @Transactional
-    public EmsEmployee updateEmployeePassword(String empId, String newPassword) throws EmsCustomException {
+    public EmsEmployeeDto updateEmployeePassword(String empId, String newPassword) throws EmsCustomException {
         EmsEmployee e = emsEmployeeRepo.findById(idMask.unmask(empId))
                 .orElseThrow(() -> new EmsCustomException("Employee with id " + empId + " not found.", "404"));
 
@@ -166,7 +169,7 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
 
         EmsEmployee savedEmployee = emsEmployeeRepo.save(e);
         log.info("Password for employee with id " + empId + " updated successfully");
-        return savedEmployee;
+        return EmsEntityDtoConverter.toDto(savedEmployee);
     }
 
 
@@ -196,40 +199,43 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
     }
 
     @Override
-    public List<EmsEmployee> getAllEmployees(String employerId) {
-       return  emsEmployeeRepo.findByEmployerDetailsId(idMask.unmask(employerId));
+    public List<EmsEmployeeDto> getAllEmployees(String employerId) {
+        List<EmsEmployee> employees = emsEmployeeRepo.findByEmployerDetailsId(idMask.unmask(employerId));
+        return employees.stream()
+                .map(EmsEntityDtoConverter::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public EmsEmployeeDto createEmployeeKafka(EmsEmployeeDto em) {
-        EmsEmployee employee = createEmployee(em);
+        EmsEmployeeDto employee = createEmployee(em);
         EmsEmailDto emailData = new EmsEmailDto().builder()
                 .to(employee.getUsername())
                 .phone(employee.getPhone())
                 .subject("Your new Account info")
-                .body("Your username is " + employee.getUsername() + " Follow the link to reset password http://localhost:5173/reset-password?id=" + idMask.mask(employee.getId()))
+                .body("Your username is " + employee.getUsername() + " Follow the link to reset password http://localhost:5173/reset-password?id=" + employee.getId())
                 .build();
         kafkaTemplate.send("send-employee-email", emailData);
-        return EmsEmployeeConverter.toDto(employee) ;
+        return employee ;
     }
 
 
     @Override
-    public boolean generateToken(String empId) {
+    public boolean generateToken(String empId) throws EmsCustomException {
         EmsUserToken emsUserToken = emsUserTokenService.generateToken(empId);
         if (emsUserToken == null) {
             return false;
         }
-        Optional<EmsEmployee> employeeOptional = getEmployeebyId(emsUserToken.getId());
+        Optional<EmsEmployeeDto> employeeOptional = getEmployeebyId(idMask.mask(emsUserToken.getId()));
         if (employeeOptional.isPresent()) {
-            EmsEmployee employee = employeeOptional.get();
+            EmsEmployeeDto employee = employeeOptional.get();
             EmsEmailDto emailData = EmsEmailDto.builder()
                     .to(employee.getUsername())
                     .phone(employee.getPhone())
                     .subject("Your Token Code For Password Reset")
                     .body("Your code is " + emsUserToken.getToken() +
                             ". Proceed to password reset through this link http://localhost:5173/reset-password?user=" +
-                            idMask.mask(employee.getId()) + " or continue on your previous page.")
+                            employee.getId() + " or continue on your previous page.")
                     .build();
             kafkaTemplate.send("send-employee-email", emailData);
             return true;

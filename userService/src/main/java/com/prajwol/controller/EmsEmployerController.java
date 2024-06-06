@@ -1,9 +1,6 @@
 package com.prajwol.controller;
 
-import com.prajwol.dto.EmsEmployeeDto;
-import com.prajwol.dto.EmsTokenDto;
-import com.prajwol.dto.UserAuthReqDto;
-import com.prajwol.dto.UserAuthResDto;
+import com.prajwol.dto.*;
 import com.prajwol.entity.EmsEmployer;
 import com.prajwol.entity.EmsRole;
 import com.prajwol.exception.EmsCustomErrorResponse;
@@ -14,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/employer")
@@ -31,13 +30,19 @@ public class EmsEmployerController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<EmsEmployer> register(@RequestBody EmsEmployer emsEmployer) {
+    public ResponseEntity<EmsEmployerResponseDto> register(@RequestBody EmsEmployerRequestDto emsEmployer) {
         return ResponseEntity.ok(emsEmployerService.registerEmployer(emsEmployer));
+    }
+    @GetMapping("/{id}")
+    public ResponseEntity<EmsEmployerResponseDto> getEmployerById(@PathVariable String id) {
+        Optional<EmsEmployerResponseDto> employerDtoOptional = emsEmployerService.getEmployerbyId(id);
+        return employerDtoOptional.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
     @PutMapping("/{empId}/password")
     public ResponseEntity<?> updateEmployeePassword(@PathVariable("empId") String empId, @RequestBody String newPassword) {
         try {
-            EmsEmployer updatedEmployer = emsEmployerService.updateEmployerPassword(empId, newPassword);
+            EmsEmployerResponseDto updatedEmployer = emsEmployerService.updateEmployerPassword(empId, newPassword);
             return ResponseEntity.ok(updatedEmployer);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
@@ -47,9 +52,9 @@ public class EmsEmployerController {
     }
 
     @PutMapping("/{empId}")
-    public ResponseEntity<?> updateEmployer(@PathVariable("empId") String empId, @RequestBody EmsEmployer employer) {
+    public ResponseEntity<?> updateEmployer(@PathVariable("empId") String empId, @RequestBody EmsEmployerRequestDto employer) {
         try {
-            EmsEmployer updatedEmployer = emsEmployerService.updateEmployer(empId, employer);
+            EmsEmployerResponseDto updatedEmployer = emsEmployerService.updateEmployer(empId, employer);
             return ResponseEntity.ok(updatedEmployer);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
@@ -58,23 +63,28 @@ public class EmsEmployerController {
     }
 
     @PutMapping("/role/{empId}")
-    public ResponseEntity<?> updateEmployeeRole(@PathVariable("empId") String empId, @RequestBody EmsRole role){
+    public ResponseEntity<?> updateEmployerRole(@PathVariable("empId") String empId, @RequestBody EmsRole role){
         try {
-            EmsEmployer updatedEmployer = emsEmployerService.updateEmployeeRole(empId, role);
+            EmsEmployerResponseDto updatedEmployer = emsEmployerService.updateEmployeeRole(empId, role);
             return ResponseEntity.ok(updatedEmployer);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+    @DeleteMapping("/deleteEmployee/{empId}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable("empId") String employerId) {
+        emsEmployeeService.deleteEmployee(employerId);
+        return ResponseEntity.noContent().build();
+    }
     @DeleteMapping("/{empId}")
-    public ResponseEntity<Void> deleteEmployer(@PathVariable("empId") Long employerId) {
+    public ResponseEntity<Void> deleteEmployer(@PathVariable("empId") String employerId) {
         emsEmployerService.deleteEmployer(employerId);
         return ResponseEntity.noContent().build();
     }
     @PostMapping("/newEmployee")
-    public void addNewEmployee(@RequestBody EmsEmployeeDto emsEmployee) {
-        emsEmployeeService.createEmployeeKafka(emsEmployee);
+    public ResponseEntity<EmsEmployeeDto> addNewEmployee(@RequestBody EmsEmployeeDto emsEmployee) {
+        return ResponseEntity.ok( emsEmployeeService.createEmployeeKafka(emsEmployee));
     }
     @PostMapping("/generateToken/{empId}")
     public ResponseEntity<String> generateToken(@PathVariable String empId) {
@@ -84,7 +94,7 @@ public class EmsEmployerController {
 
     }
 
-    @PostMapping("/updatePassword/{userId}")
+    @PutMapping("/updatePassword/{userId}")
     public ResponseEntity<Object> verifyTokenAndUpdatePassword(@PathVariable String userId, @RequestBody EmsTokenDto emsTokenDto) {
         try {
             boolean isPasswordUpdated = emsEmployerService.verifyTokenAndUpdatePassword(userId, emsTokenDto);
@@ -96,5 +106,6 @@ public class EmsEmployerController {
                     .body(new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage()));
         }
     }
+
 }
 

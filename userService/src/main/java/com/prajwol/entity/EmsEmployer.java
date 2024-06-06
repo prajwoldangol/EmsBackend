@@ -29,6 +29,8 @@ public class EmsEmployer {
     @Column(unique = true, nullable = false)
     private String username;
 
+    private String companyName;
+
     @Column(unique = true, nullable = false)
     private String phone;
 
@@ -36,22 +38,17 @@ public class EmsEmployer {
 
     @Enumerated(EnumType.STRING)
     private EmsRole role;
-    @OneToMany(mappedBy = "employerDetails", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "employerDetails", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EmsEmployee> emsEmployee;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_details")
     private EmsUserDetails emsUserDetails;
 
+    @OneToMany(mappedBy = "emsEmployer", cascade = CascadeType.ALL , orphanRemoval = true)
+    private List<EmsDepartment> departments;
 
-
-
-
-    @OneToMany(mappedBy = "emsEmployer", cascade = CascadeType.ALL)
-    private Set<EmsDepartment> departments;
-
-
-    @OneToMany(mappedBy = "emsSubscriber")
+    @OneToMany(mappedBy = "emsSubscriber" , orphanRemoval = true)
     private List<EmsSubscriptions> emsSubscriptionsList;
 
     public EmsEmployer(String username, String password, String phone) {

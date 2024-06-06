@@ -12,16 +12,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmsEmployeeService {
-    public EmsEmployee registerEmployee(EmsEmployee em);
-    public Optional<EmsEmployee> getEmployeebyId(long id);
-    public void deleteEmployee(Long employerId);
-    public EmsEmployee createEmployee(EmsEmployeeDto em);
+    public EmsEmployeeDto registerEmployee(EmsEmployee em);
+    public Optional<EmsEmployeeDto> getEmployeebyId(String id) throws EmsCustomException;
+    public void deleteEmployee(String employerId);
+    public EmsEmployeeDto createEmployee(EmsEmployeeDto em);
     UserAuthResDto loginEmployee(UserAuthReqDto userReqDto);
-    public List<EmsEmployee> getAllEmployees(String employerId);
+    public List<EmsEmployeeDto> getAllEmployees(String employerId);
     public EmsEmployeeDto createEmployeeKafka(EmsEmployeeDto em);
-    public EmsEmployee updateEmployee(String empId, EmsEmployeeDto em) throws EmsCustomException;
-    public EmsEmployee updateEmployeePassword(String empId, String newPassword) throws EmsCustomException;
+    public EmsEmployeeDto updateEmployee(String empId, EmsEmployeeDto em) throws EmsCustomException;
+    public EmsEmployeeDto updateEmployeePassword(String empId, String newPassword) throws EmsCustomException;
 
-    public boolean generateToken(String empId);
+    public boolean generateToken(String empId) throws EmsCustomException;
     public boolean verifyTokenAndUpdatePassword(String token, EmsTokenDto emsTokenDto) throws EmsCustomException;
 }

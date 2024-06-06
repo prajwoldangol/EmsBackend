@@ -2,7 +2,7 @@ package com.prajwol.service;
 
 import at.favre.lib.idmask.IdMask;
 import com.prajwol.dto.EmsDepartmentDto;
-import com.prajwol.dto.dtoservice.EmsEmployeeConverter;
+import com.prajwol.dto.dtoservice.EmsEntityDtoConverter;
 import com.prajwol.entity.EmsDepartment;
 import com.prajwol.entity.EmsEmployer;
 import com.prajwol.exception.EmsCustomException;
@@ -48,7 +48,7 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
         setCommonFields(emsDepartment, emsDepartmentDto);
         EmsDepartment savedDepartment = emsDepartmentRepo.save(emsDepartment);
         log.info("A new Department is added for {}", emsDepartmentDto.getEmployerId());
-        return EmsEmployeeConverter.toDtoDept(savedDepartment);
+        return EmsEntityDtoConverter.toDtoDept(savedDepartment);
     }
 
     @Override
@@ -60,7 +60,7 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
     public List<EmsDepartmentDto> getAllDepartments() {
         List<EmsDepartment> all = emsDepartmentRepo.findAll();
         return all.stream()
-                .map(EmsEmployeeConverter::toDtoDept)
+                .map(EmsEntityDtoConverter::toDtoDept)
                 .collect(Collectors.toList());
     }
 
@@ -80,14 +80,14 @@ public class EmsDepartmentServiceImpl implements EmsDepartmentService {
         setCommonFields(existingDepartment, emsDepartmentDto);
         EmsDepartment updatedDepartment = emsDepartmentRepo.save(existingDepartment);
         log.info("Department with id {} has been updated", id);
-        return EmsEmployeeConverter.toDtoDept(updatedDepartment);
+        return EmsEntityDtoConverter.toDtoDept(updatedDepartment);
     }
 
     @Override
     public EmsDepartmentDto getDepartmentById(String id) throws EmsCustomException {
         EmsDepartment department = emsDepartmentRepo.findById(idObfuscationService.idMask().unmask(id))
                 .orElseThrow(() -> new EmsCustomException("Department not found", "404"));
-        return EmsEmployeeConverter.toDtoDept(department);
+        return EmsEntityDtoConverter.toDtoDept(department);
 //        Optional<EmsDepartment> byId = emsDepartmentRepo.findById(idMask.unmask(id));
 //        return byId.orElseThrow(() -> new EmsCustomException("Department not found", "404"));
     }

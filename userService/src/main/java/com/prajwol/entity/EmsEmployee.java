@@ -37,15 +37,15 @@ public class EmsEmployee {
     private EmsRole role;
     @ManyToOne
     @JoinColumn(name = "employer_id")
-    @JsonIgnoreProperties({"password", "username", "phone", "signedUpDate", "role", "emsEmployee", "emsUserDetails", "departments", "emsSubscriptionsList"})
+//    @JsonIgnoreProperties({"password", "username", "phone", "signedUpDate", "role", "emsEmployee", "emsUserDetails", "departments", "emsSubscriptionsList"})
     private EmsEmployer employerDetails;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "user_details")
     private EmsUserDetails emsUserDetails;
 
     @ManyToOne
     @JoinColumn(name = "dept_id")
-    @JsonIgnoreProperties({"emsEmployer", "emsEmployeeList"})
+//    @JsonIgnoreProperties({"emsEmployer", "emsEmployeeList"})
     private EmsDepartment emsDepartment;
 }

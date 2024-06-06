@@ -24,10 +24,11 @@ public class EmsEmployeeController {
     public EmsEmployeeController(EmsEmployeeService emsEmployeeService) {
         this.emsEmployeeService = emsEmployeeService;
     }
+
     @PostMapping("/login")
     public ResponseEntity<UserAuthResDto> login(@RequestBody UserAuthReqDto userReqDto, HttpServletResponse response) {
         UserAuthResDto userAuthResDto = emsEmployeeService.loginEmployee(userReqDto);
-        if(userAuthResDto.getStatusCode() == HttpStatus.OK.value()){
+        if (userAuthResDto.getStatusCode() == HttpStatus.OK.value()) {
             Cookie refreshTokenCookie = new Cookie("refreshToken", userAuthResDto.getRefreshToken());
             refreshTokenCookie.setHttpOnly(true); // Set HTTPOnly flag
             refreshTokenCookie.setSecure(true); // Set Secure flag for HTTPS
@@ -40,40 +41,54 @@ public class EmsEmployeeController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<EmsEmployee> register(@RequestBody EmsEmployee emsEmployee) {
+    public ResponseEntity<EmsEmployeeDto> register(@RequestBody EmsEmployee emsEmployee) {
         return ResponseEntity.ok(emsEmployeeService.registerEmployee(emsEmployee));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable String id, @RequestBody EmsEmployeeDto em) {
-        try{
-            EmsEmployee updatedEmployee = emsEmployeeService.updateEmployee(id, em);
-            return ResponseEntity.ok(updatedEmployee);
-        }catch (EmsCustomException e){
+    @GetMapping("/{empId}")
+    public ResponseEntity<?> getEmployee(@PathVariable String empId) {
+        try {
+            EmsEmployeeDto employeeDto = emsEmployeeService.getEmployeebyId(empId).get();
+            return ResponseEntity.ok(employeeDto);
+        } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateEmployee(@PathVariable String id, @RequestBody EmsEmployeeDto em) {
+        try {
+            EmsEmployeeDto updatedEmployee = emsEmployeeService.updateEmployee(id, em);
+            return ResponseEntity.ok(updatedEmployee);
+        } catch (EmsCustomException e) {
+            EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+
+    }
+
     @PutMapping("/{empId}/password")
     public ResponseEntity<?> updateEmployeePassword(@PathVariable String empId, @RequestBody String newPassword) {
         try {
-            EmsEmployee updatedEmployee = emsEmployeeService.updateEmployeePassword(empId, newPassword);
+            EmsEmployeeDto updatedEmployee = emsEmployeeService.updateEmployeePassword(empId, newPassword);
             return ResponseEntity.ok(updatedEmployee);
         } catch (EmsCustomException e) {
             EmsCustomErrorResponse errorResponse = new EmsCustomErrorResponse(e.getErrorCode(), e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
+
     @PostMapping("/generateToken/{empId}")
-    public ResponseEntity<String> generateToken(@PathVariable String empId) {
+    public ResponseEntity<String> generateToken(@PathVariable String empId) throws EmsCustomException {
         return emsEmployeeService.generateToken(empId) ?
                 ResponseEntity.ok("Token generated successfully") :
                 ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate token");
 
     }
 
-    @PostMapping("/updatePassword/{userId}")
+    @PutMapping("/updatePassword/{userId}")
     public ResponseEntity<Object> verifyTokenAndUpdatePassword(@PathVariable String userId, @RequestBody EmsTokenDto emsTokenDto) {
         try {
             boolean isPasswordUpdated = emsEmployeeService.verifyTokenAndUpdatePassword(userId, emsTokenDto);
