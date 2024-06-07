@@ -46,12 +46,16 @@ public class EmsSubscriptionServiceImpl implements EmsSubscriptionService {
                 .expiringOn(Instant.now().plus(Duration.ofDays(30)))
                 .paymentAmount(subscription.getPaymentAmount())
                 .payCycle(subscription.getPayCycle())
-                .paymentMethod(subscription.getPaymentMethod())
+                .stripeSubscriptionId(subscription.getStripeSubscriptionId())
+                .stripeCustomerId(subscription.getStripeCustomerId())
+                .stripeInvoiceId(subscription.getStripeInvoiceId())
+//                .stripeLatestCharge(subscription.getStripeLatestCharge())
+//                .stripePayIntentId(subscription.getStripePayIntentId())
                 .build();
-        if( subscription.getEmsSubscriberId() != null){
-            Long id = idMask.unmask(subscription.getEmsSubscriberId());
+        if( subscription.getEmsEmployer() != null){
+            Long id = idMask.unmask(subscription.getEmsEmployer());
             emsEmployerService.getById(id)
-                    .ifPresent(sub::setEmsSubscriber);
+                    .ifPresent(sub::setEmsEmployer);
         }
         return emsSubscriptionsRepo.save(sub);
 

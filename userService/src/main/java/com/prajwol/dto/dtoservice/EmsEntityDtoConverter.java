@@ -134,12 +134,12 @@ public class EmsEntityDtoConverter {
                         .paidOn(subscription.getPaidOn())
                         .expiringOn(subscription.getExpiringOn())
                         .payCycle(subscription.getPayCycle())
-                        .paymentMethod(subscription.getPaymentMethod())
                         .paymentAmount(subscription.getPaymentAmount())
                         .stripeCustomerId(subscription.getStripeCustomerId())
                         .stripeInvoiceId(subscription.getStripeInvoiceId())
-                        .stripePayIntentId(subscription.getStripePayIntentId())
-                        .stripeLatestCharge(subscription.getStripeLatestCharge())
+
+//                        .stripePayIntentId(subscription.getStripePayIntentId())
+//                        .stripeLatestCharge(subscription.getStripeLatestCharge())
                         .build())
                 .collect(Collectors.toList());
     }

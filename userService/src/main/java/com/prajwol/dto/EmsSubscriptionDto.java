@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class EmsSubscriptionDto {
     private String payCycle;
-    private String paymentMethod;
+    private String stripeSubscriptionId;
     private Integer paymentAmount;
-    private String emsSubscriberId;
+    private String emsEmployer;
     private String stripeCustomerId;
-    private String stripePayIntentId;
+//    private String stripePayIntentId;
     private String stripeInvoiceId;
-    private String stripeLatestCharge;
+//    private String stripeLatestCharge;
 }

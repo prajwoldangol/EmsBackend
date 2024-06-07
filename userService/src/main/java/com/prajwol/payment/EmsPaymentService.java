@@ -7,12 +7,10 @@ import com.prajwol.entity.EmsEmployer;
 import com.prajwol.entity.EmsRole;
 import com.prajwol.exception.EmsCustomException;
 import com.prajwol.service.EmsEmployerService;
+import com.prajwol.service.EmsSubscriptionService;
 import com.prajwol.userservice.IdObfuscationService;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.StripeObject;
-import com.stripe.model.Subscription;
-import com.stripe.model.SubscriptionCollection;
+import com.stripe.model.*;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.SubscriptionListParams;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -30,6 +28,7 @@ import java.util.Map;
 @Log4j2
 public class EmsPaymentService {
     private EmsEmployerService emsEmployerService;
+    private EmsSubscriptionService emsSubscriptionService;
     private IdObfuscationService idObfuscationService;
     private IdMask<Long> idMask;
     @Value("${stripe.api.key}")
@@ -40,8 +39,9 @@ public class EmsPaymentService {
         com.stripe.Stripe.apiKey = stripeApiKey;
     }
     @Autowired
-    public EmsPaymentService(EmsEmployerService emsEmployerService, IdObfuscationService idObfuscationService) {
+    public EmsPaymentService(EmsEmployerService emsEmployerService,EmsSubscriptionService emsSubscriptionService, IdObfuscationService idObfuscationService) {
         this.emsEmployerService = emsEmployerService;
+        this.emsSubscriptionService = emsSubscriptionService;
         this.idObfuscationService = idObfuscationService;
         this.idMask = idObfuscationService.idMask();
     }
@@ -73,6 +73,9 @@ public class EmsPaymentService {
     public Customer getCustomer(String customerId) throws StripeException {
         return Customer.retrieve(customerId);
     }
+    public Subscription getSubscription(String subscriptionId) throws  StripeException{
+       return Subscription.retrieve(subscriptionId);
+    }
     public List<Subscription> getCustomerSubscriptions(String customerId) throws StripeException {
         Map<String, Object> params = new HashMap<>();
         params.put("customer", customerId);
@@ -86,21 +89,52 @@ public class EmsPaymentService {
         return subscriptions.getData();
     }
     public void updateCustomerAndPayment(StripeObject stripeObject) throws StripeException {
-        Customer customer = Customer.retrieve(stripeObject.get);
-        if (customer == null) {
-            return;
+        if(stripeObject == null){
+            return ;
         }
+//        PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
+        Session session = (Session) stripeObject;
+        EmsSubscriptionDto subscriptionDto = new EmsSubscriptionDto().builder()
+                .stripeSubscriptionId(session.getSubscription())
+                .paymentAmount((int) (session.getAmountTotal() / 100))
+                .emsEmployer(session.getCustomer())
+                .stripeCustomerId(session.getCustomer())
+//                .stripePayIntentId(session.getId())
+                .stripeInvoiceId(session.getInvoice())
+//                .stripeLatestCharge(paymentIntent.getLatestCharge())
+                .build();
+        EmsEmployer byUsername = null;
         try {
-            EmsEmployer byUsername = emsEmployerService.getByUsername(customer.getEmail());
-
-            if(byUsername != null){
-                emsEmployerService.updateEmployeeRole(idMask.mask(byUsername.getId()), EmsRole.EMPLOYER_PLUS);
-                EmsSubscriptionDto emsSubscriptionDto = new EmsSubscriptionDto().builder()
-
-                        .build();
-            }
+            byUsername = emsEmployerService.getByUsername(session.getCustomerEmail());
         } catch (EmsCustomException e) {
             throw new RuntimeException(e);
         }
+
+        if(byUsername != null){
+                EmsEmployerResponseDto emsEmployerResponseDto = null;
+                try {
+                    Subscription subscription = getSubscription(session.getSubscription());
+//                    log.info(subscription);
+                    String planId = subscription.getItems().getData().get(0).getPlan().getId();
+                    emsEmployerResponseDto = emsEmployerService.updateEmployeeRole(idMask.mask(byUsername.getId()), getRole(planId));
+                    subscriptionDto.setEmsEmployer(emsEmployerResponseDto.getId());
+                } catch (EmsCustomException e) {
+                    throw new RuntimeException(e);
+                }
+                emsSubscriptionService.addSubscription(subscriptionDto);
+
+            }
+
+    }
+
+    public EmsRole getRole(String roleId) {
+        HashMap<String, EmsRole> roles = new HashMap<>();
+        roles.put("price_1PNf3GIljL5sgmrY5RuKzvWQ", EmsRole.EMPLOYER_BASIC);
+        roles.put("price_1PNf4eIljL5sgmrY3Q9rxBOm", EmsRole.EMPLOYER_STANDARD);
+        roles.put("price_1PNf4pIljL5sgmrYrJi5VOt6", EmsRole.EMPLOYER_PLUS);
+        if(roles.containsKey(roleId)){
+            return roles.get(roleId);
+        }
+        return EmsRole.USER;
     }
 }

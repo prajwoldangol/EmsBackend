@@ -23,13 +23,13 @@ public class EmsSubscriptions {
     private Instant paidOn;
     private Instant expiringOn;
     private String payCycle;
-    private String paymentMethod;
+    private String stripeSubscriptionId;
     private Integer paymentAmount;
     private String stripeCustomerId;
-    private String stripePayIntentId;
+//    private String stripePayIntentId;
     private String stripeInvoiceId;
-    private String stripeLatestCharge;
+//    private String stripeLatestCharge;
     @ManyToOne
-    @JoinColumn(name = "subscriber_id")
-    private EmsEmployer emsSubscriber;
+    @JoinColumn(name = "emsUserId")
+    private EmsEmployer emsEmployer;
 }

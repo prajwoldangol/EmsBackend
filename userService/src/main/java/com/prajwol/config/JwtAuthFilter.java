@@ -37,6 +37,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
+            String requestURI = request.getRequestURI();
+//            log.info("requestURI: " + requestURI);
+//            if (requestURI.startsWith("/employer/webhooks/stripe")) {
+//                log.info("Skipping JWT filter for webhook endpoint");
+//                filterChain.doFilter(request, response);
+//                return ;
+//            }
             String authorizationHeader = request.getHeader("Authorization");
             String username = null;
             String jwt = null;
@@ -49,7 +56,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
             log.info("Username extracted from JWT token: {}", username);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                String requestURI = request.getRequestURI();
+
                 UserDetails userDetails = null;
                 if (requestURI.startsWith("/employer/")) {
                     try{
@@ -84,16 +91,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.getWriter().write(errorMessage);
             response.getWriter().flush();
         } catch (Exception e) {
-//            int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-//            if (e instanceof ExpiredJwtException) {
-//                statusCode = HttpServletResponse.SC_UNAUTHORIZED;
-//            }
-//            log.error("An error occurred: {}", e.getMessage());
-//            response.setContentType("application/json");
-//            String errorMessage = "{\"error\": \"" + statusCode + "\", \"message\": \"" + e.getMessage() + "\"}";
-//            response.getWriter().write(errorMessage);
-//
-//            response.getWriter().flush();
+            int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+            if (e instanceof ExpiredJwtException) {
+                statusCode = HttpServletResponse.SC_UNAUTHORIZED;
+            }
+            log.error("An error occurred: {}", e.getMessage());
+            response.setContentType("application/json");
+            String errorMessage = "{\"error\": \"" + statusCode + "\", \"message\": \"" + e.getMessage() + "\"}";
+            response.getWriter().write(errorMessage);
+
+            response.getWriter().flush();
         }
         //filterChain.doFilter(request, response);
 

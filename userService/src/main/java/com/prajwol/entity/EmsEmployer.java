@@ -48,7 +48,7 @@ public class EmsEmployer {
     @OneToMany(mappedBy = "emsEmployer", cascade = CascadeType.ALL , orphanRemoval = true)
     private List<EmsDepartment> departments;
 
-    @OneToMany(mappedBy = "emsSubscriber" , orphanRemoval = true)
+    @OneToMany(mappedBy = "emsEmployer" , orphanRemoval = true)
     private List<EmsSubscriptions> emsSubscriptionsList;
 
     public EmsEmployer(String username, String password, String phone) {

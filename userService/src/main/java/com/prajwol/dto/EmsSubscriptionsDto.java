@@ -19,7 +19,7 @@ public class EmsSubscriptionsDto {
     private String paymentMethod;
     private Integer paymentAmount;
     private String stripeCustomerId;
-    private String stripePayIntentId;
+//    private String stripePayIntentId;
     private String stripeInvoiceId;
-    private String stripeLatestCharge;
+//    private String stripeLatestCharge;
 }

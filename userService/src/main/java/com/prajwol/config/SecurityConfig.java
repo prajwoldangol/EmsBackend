@@ -20,6 +20,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.List;
 
@@ -45,6 +46,9 @@ public class SecurityConfig {
         log.info("ENTERED CHAIN 1");
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
+//                .cors(cors -> cors
+//                        .configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
+//                )
                 .authorizeHttpRequests(auth -> auth.requestMatchers("/employer/login", "/employer/register", "/employer/webhooks/stripe", "/employer/pay/**").permitAll()
                         .anyRequest().authenticated()
                 )
