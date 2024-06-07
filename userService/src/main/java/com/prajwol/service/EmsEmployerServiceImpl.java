@@ -194,4 +194,15 @@ public class EmsEmployerServiceImpl implements EmsEmployerService {
         }
         return false;
     }
+
+    @Override
+    public EmsEmployer getByUsername(String username) throws EmsCustomException {
+        return emsEmployerRepo.findByUsername(username)
+                .orElseThrow(() -> new EmsCustomException("Not Found", "404"));
+    }
+
+    @Override
+    public EmsEmployer saveEmployer(EmsEmployer em) {
+        return emsEmployerRepo.save(em);
+    }
 }

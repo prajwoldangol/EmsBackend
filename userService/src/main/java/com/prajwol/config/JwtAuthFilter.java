@@ -84,16 +84,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             response.getWriter().write(errorMessage);
             response.getWriter().flush();
         } catch (Exception e) {
-            int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
-            if (e instanceof ExpiredJwtException) {
-                statusCode = HttpServletResponse.SC_UNAUTHORIZED;
-            }
-            log.error("An error occurred: {}", e.getMessage());
-            response.setContentType("application/json");
-            String errorMessage = "{\"error\": \"" + statusCode + "\", \"message\": \"" + e.getMessage() + "\"}";
-            response.getWriter().write(errorMessage);
-
-            response.getWriter().flush();
+//            int statusCode = HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+//            if (e instanceof ExpiredJwtException) {
+//                statusCode = HttpServletResponse.SC_UNAUTHORIZED;
+//            }
+//            log.error("An error occurred: {}", e.getMessage());
+//            response.setContentType("application/json");
+//            String errorMessage = "{\"error\": \"" + statusCode + "\", \"message\": \"" + e.getMessage() + "\"}";
+//            response.getWriter().write(errorMessage);
+//
+//            response.getWriter().flush();
         }
         //filterChain.doFilter(request, response);
 

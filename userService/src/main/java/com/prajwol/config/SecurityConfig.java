@@ -45,7 +45,7 @@ public class SecurityConfig {
         log.info("ENTERED CHAIN 1");
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/employer/login", "/employer/register").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/employer/login", "/employer/register", "/employer/webhooks/stripe", "/employer/pay/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

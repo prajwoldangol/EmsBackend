@@ -25,6 +25,10 @@ public class EmsSubscriptions {
     private String payCycle;
     private String paymentMethod;
     private Integer paymentAmount;
+    private String stripeCustomerId;
+    private String stripePayIntentId;
+    private String stripeInvoiceId;
+    private String stripeLatestCharge;
     @ManyToOne
     @JoinColumn(name = "subscriber_id")
     private EmsEmployer emsSubscriber;

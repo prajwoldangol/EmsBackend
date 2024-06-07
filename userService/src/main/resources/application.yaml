@@ -35,3 +35,7 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
+
+stripe:
+  api:
+    key: sk_test_51PNeAWIljL5sgmrYJ61a5q00UdEXGKL4o5WFO4fuGgWa5cmIKzuDvvLkLQy1RKw6hDp8pCAh3fyWUj7zhqTQnCO600W1MeFiKl

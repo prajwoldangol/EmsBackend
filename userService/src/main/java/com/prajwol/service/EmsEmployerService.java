@@ -19,4 +19,7 @@ public interface EmsEmployerService {
     public EmsEmployerResponseDto updateEmployeeRole(String empId, EmsRole role) throws EmsCustomException;
     public boolean generateToken(String empId);
     public boolean verifyTokenAndUpdatePassword(String userId, EmsTokenDto emsTokenDto) throws EmsCustomException;
+
+    public EmsEmployer getByUsername(String username) throws EmsCustomException;
+    public EmsEmployer saveEmployer(EmsEmployer em);
 }
