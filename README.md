@@ -6,7 +6,7 @@ User can manage their employees, create schedules, and create task boards to tra
 
 ## Features
 
-- Purchase a plan that suits your need
+- Register as an employer and Purchase a plan that suits your need
 - Add and manage your employees
 - Create Schedules
 - Create and track task board activities.
