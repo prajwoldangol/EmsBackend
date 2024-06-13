@@ -20,7 +20,7 @@ spring:
 jwt:
   secret:
     key: zq8ErKjjaUqOJWqFr7ZBQQk70KgB3sUSKdwJ4y58iO3Gjr91TZHhyjNhEBkVKzM
-  expiration: 900000
+  expiration: 21600000
 logging:
   level:
     org.springframework.security: DEBUG

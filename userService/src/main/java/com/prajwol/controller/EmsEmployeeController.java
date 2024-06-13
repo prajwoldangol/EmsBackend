@@ -69,9 +69,10 @@ public class EmsEmployeeController {
 
     }
 
-    @PutMapping("/{empId}/password")
+    @PutMapping("/password/{empId}")
     public ResponseEntity<?> updateEmployeePassword(@PathVariable String empId, @RequestBody String newPassword) {
         try {
+
             EmsEmployeeDto updatedEmployee = emsEmployeeService.updateEmployeePassword(empId, newPassword);
             return ResponseEntity.ok(updatedEmployee);
         } catch (EmsCustomException e) {

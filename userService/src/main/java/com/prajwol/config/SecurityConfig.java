@@ -33,12 +33,12 @@ public class SecurityConfig {
 
     private EmployerDetailsService employerDetailsService;
 
-
+    private PasswordEncoder passwordEncoder;
     @Autowired
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, EmployerDetailsService employerDetailsService) {
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, EmployerDetailsService employerDetailsService, PasswordEncoder passwordEncoder) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.employerDetailsService = employerDetailsService;
-
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
@@ -66,14 +66,14 @@ public class SecurityConfig {
         log.info("ENTERED provider 1");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(employerDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+//    @Bean
+//    public PasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     @Primary

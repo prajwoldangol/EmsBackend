@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -160,13 +161,14 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
     @Override
     @Transactional
     public EmsEmployeeDto updateEmployeePassword(String empId, String newPassword) throws EmsCustomException {
+        log.info("empID : " + empId + " newPw:" +newPassword);
         EmsEmployee e = emsEmployeeRepo.findById(idMask.unmask(empId))
                 .orElseThrow(() -> new EmsCustomException("Employee with id " + empId + " not found.", "404"));
 
         // Encode the new password
         String encodedPassword = passwordEncoder.encode(newPassword);
         e.setPassword(encodedPassword);
-
+        log.info("updated "+ e.getPassword());
         EmsEmployee savedEmployee = emsEmployeeRepo.save(e);
         log.info("Password for employee with id " + empId + " updated successfully");
         return EmsEntityDtoConverter.toDto(savedEmployee);
@@ -178,9 +180,10 @@ public class EmsEmployeeServiceImpl implements EmsEmployeeService {
         UserAuthResDto employeeResDto = new UserAuthResDto();
         try {
             HashMap<String, String> role = new HashMap<>();
-            authenticationManager
+            Authentication authenticate = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(userReqDto.getUsername(),
                             userReqDto.getPassword()));
+            log.info(authenticate);
             var user = emsEmployeeRepo.findByUsername(userReqDto.getUsername()).orElseThrow(() -> new EmsCustomException("User Not Found", "404"));
             role.put("role", user.getRole().name());
 

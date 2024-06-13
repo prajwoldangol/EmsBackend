@@ -28,11 +28,12 @@ public class EmployeeSecurityConfig {
     private JwtAuthFilter jwtAuthFilter;
 
     private EmployeeDetailsService employeeDetailsService;
-
+    private PasswordEncoder passwordEncoder;
     @Autowired
-    public EmployeeSecurityConfig(JwtAuthFilter jwtAuthFilter, EmployeeDetailsService employeeDetailsService) {
+    public EmployeeSecurityConfig(JwtAuthFilter jwtAuthFilter, EmployeeDetailsService employeeDetailsService,PasswordEncoder passwordEncoder) {
         this.jwtAuthFilter = jwtAuthFilter;
         this.employeeDetailsService = employeeDetailsService;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -42,7 +43,7 @@ public class EmployeeSecurityConfig {
         log.info("ENTERED CHAIN 2");
         http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/employee/login", "/employee/register", "/employee/test").permitAll()
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/employee/login", "/employee/register", "/employee/password/*").permitAll()
                         .anyRequest().authenticated()
 
                 )
@@ -60,14 +61,14 @@ public class EmployeeSecurityConfig {
         log.info("ENTERED provider 2");
         DaoAuthenticationProvider authProviders = new DaoAuthenticationProvider();
         authProviders.setUserDetailsService(employeeDetailsService);
-        authProviders.setPasswordEncoder(passwordEncoder2());
+        authProviders.setPasswordEncoder(passwordEncoder);
         return authProviders;
     }
-
-    @Bean
-    public PasswordEncoder passwordEncoder2() {
-        return new BCryptPasswordEncoder();
-    }
+//
+//    @Bean
+//    public PasswordEncoder pwEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
 //    @Qualifier("employeeAuthenticationManager")

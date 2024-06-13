@@ -35,17 +35,18 @@ public class EmsEmailService {
         // sms
         String email_to = "";
 
-        List<String> countries = Arrays.asList("US");
+        List<String> countries = Arrays.asList("US", "CA", "UK");
         EmsPhoneVerifyDto data =  emsPhoneVerifyService.verifyPhone(emailDto.getPhone(),countries);
         log.info("SMS: " + data.getSms_email());
         log.info("Phone is valid: " + data.isValid());
         log.info("domain" +data.getSms_domain()) ;
         if (data != null && data.isValid()) {
-            String emailTo = "N/A".equals(data.getSms_email()) ?
+            email_to = "N/A".equals(data.getSms_email()) ?
                     ("N/A".equals(data.getSms_domain()) ? null : emailDto.getPhone() + "@" + data.getSms_domain())
                     : data.getSms_email();
-            if (emailTo != null) {
-                sendHtmlEmail(emailTo, emailDto.getSubject(), emailDto.getBody());
+            log.info("emailto" +email_to) ;
+            if (email_to != null) {
+                sendHtmlEmail(email_to, emailDto.getSubject(), emailDto.getBody());
             }
         }
     }
