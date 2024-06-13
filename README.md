@@ -12,6 +12,13 @@ User can manage their employees, create schedules, and create task boards to tra
 - Create and track task board activities.
 - Email notifications.
 
+## Features Coming Soon
+
+- Employee Onboarding
+- Employee Payroll Services
+- Employee Inter Company Communication and Messaging Features.
+- More Admin controls over employees.
+
 
 ## Technical Specifications
 
