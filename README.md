@@ -33,6 +33,64 @@ User can manage their employees, create schedules, and create task boards to tra
 - **Services**: USER SERVICE, TASK SERVICE, NOTIFICATION SERVICE, SCHEDULE SERVICE.
 - **DATABASES**: MYSQL, MONGODB
 
+## Current Endpoints
+
+## USER SERVICE
+
+Employer
+
+- POST /user/employer/login
+- POST /user/employer/register
+- GET /user/employer/{id}
+- PUT /user/employer/{empId}/password
+- PUT /user/employer/{empId}
+- PUT /user/employer/role/{empId}
+- DELETE /user/employer/deleteEmployee/{empId}
+- DELETE /user/employer/{empId}
+- POST /user/employer/newEmployee
+- POST /user/employer/generateToken/{empId}
+- PUT /user/employer/updatePassword/{userId}
+
+Employee
+
+- POST /user/employee/login
+- POST /user/employee/register
+- GET /user/employee/{empId}
+- PUT /user/employee/{id}
+- PUT /user/employee/password/{empId}
+- POST /user/employee/generateToken/{empId}
+- PUT /user/employee/updatePassword/{userId}
+
+Department
+
+- GET /user/employer/departments
+- GET /user/employer/departments/{id}
+- POST /user/employer/departments
+- PUT /user/employer/departments/{id}
+- DELETE /user/employer/departments/{id}
+
+## TASK SERVICE
+
+- POST /task/board
+- PUT /task/board/{taskId}
+- DELETE /task/board/{taskId}
+- GET /task/board
+- GET /task/board/{taskId}
+- GET /task/board/owner/{taskOwner}
+- GET /task/board/department/{department}
+
+## SCHEDULE SERVICE
+
+- GET /schedule/timetable/{id}
+- POST /schedule/timetable
+- PUT /schedule/timetable/{id}
+- DELETE /schedule/timetable/{id}
+- GET /schedule/timetable
+- GET /schedule/timetable/department/{departmentId}
+- GET /schedule/timetable/employer/{employerId}
+- GET /schedule/timetable/future
+- GET /schedule/timetable/future/{employerId}
+
 ## DATABASE ER DIAGRAM FOR USER SERVICE
 
 ![er diagram](images/User-Service-ER-Diagram.png)
