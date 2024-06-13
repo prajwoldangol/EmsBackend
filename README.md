@@ -39,10 +39,30 @@ User can manage their employees, create schedules, and create task boards to tra
 
 ## Some Pages From Frontend
 
+## Homepage
+
 ![front](images/frontend.png)
+
+## Employer Dashboard
+
 ![dash](images/employer-dashboard.png)
+
+## Schedule Management
+
 ![sch](images/schedule.png)
+
+## Employee List Table
+
 ![tbl](images/table.png)
+
+## Login Page for Employer Dashboard
+
 ![log](images/login.png)
+
+## Register Page
+
 ![reg](images/register.png)
+
+## Task
+
 ![task](images/task.png)
