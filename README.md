@@ -24,4 +24,4 @@ User can manage their employees, create schedules, create task board to track ta
 -  **DATABASES**: MYSQL, MONGODB
   
 ## DATABASE ER DIAGRAM FOR USER SERVICE
-![ER DIAGRAM](/images/User Service ER Diagram.png)
+![er diagram](images/User Service ER Diagram.png)
