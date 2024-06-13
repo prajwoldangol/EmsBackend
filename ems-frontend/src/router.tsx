@@ -69,6 +69,12 @@ const router = createBrowserRouter([
       Component: (await import('./pages/auth/otp')).default,
     }),
   },
+  {
+    path: 'success',
+    lazy: async () => ({
+      Component: (await import('./router/success')).default,
+    }),
+  },
 
   // Main routes
   {

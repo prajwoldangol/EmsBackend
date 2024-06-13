@@ -159,16 +159,16 @@ export default function HomePage() {
                 Employee Onboarding.
               </li>
             </ul>
-            {/* <a
-              onClick={() => {
-                sectionRef.current?.scrollIntoView({ behavior: 'smooth' })
-              }}
-              // variant='outline'
-              // size='lg'
-              className='mt-6 bg-black font-semibold text-white hover:border-gray-600 hover:bg-transparent hover:text-black'
-            >
-              Get Started
-            </a> */}
+            <div className='mt-8 cursor-pointer'>
+              <a
+                onClick={() => {
+                  sectionRef.current?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className='hover:border-black-600 rounded-sm bg-black px-10 py-3 font-semibold text-white hover:bg-gray-800 hover:bg-transparent'
+              >
+                Get Started
+              </a>
+            </div>
           </div>
           <picture className='sticky top-36 hidden h-fit max-w-xl md:block'>
             <img src={banner} alt='banner' />

@@ -10,6 +10,7 @@ import {
   userDataDto,
 } from '@/data/userData'
 import { LogoutActionEmployee, LogoutActionEmployeeData } from './employeeSlice'
+import { ResetScheduleData } from './scheduleSlice'
 // import axios from 'axios'
 // import { EmptyTask, GetTask } from './taskSlice'
 export const UserLogin = createAsyncThunk(
@@ -109,6 +110,7 @@ export const GetEmployer = createAsyncThunk(
         Authorization: `Bearer ${empData[1]}`,
       },
     })
+    console.log(data.data)
     return data.data
   }
 )
@@ -124,6 +126,7 @@ export const LogoutUser = createAsyncThunk(
   'user/LogoutUser',
   async (_, thunkAPI) => {
     thunkAPI.dispatch(LogoutActionEmployeeData())
+    thunkAPI.dispatch(ResetScheduleData())
   }
 )
 export interface userState {
@@ -205,6 +208,7 @@ const UserSlice = createSlice({
       })
       .addCase(GetEmployer.fulfilled, (state, action) => {
         state.userData = action.payload
+        state.role = action.payload.role
       })
       .addCase(LogoutUser.fulfilled, () => {
         return initState

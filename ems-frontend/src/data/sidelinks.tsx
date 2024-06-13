@@ -48,26 +48,7 @@ export const sidelinks: SideLink[] = [
     href: '/dashboard/allDepartments',
     icon: <IconChecklist size={18} />,
   },
-  {
-    title: 'Settings',
-    label: '',
-    href: '',
-    icon: <IconSettings size={18} />,
-    sub: [
-      {
-        title: 'Employees',
-        label: '',
-        href: '/sign-in',
-        icon: <IconUsers size={18} />,
-      },
 
-      {
-        title: 'Schedules',
-        label: '',
-        href: '/otp',
-      },
-    ],
-  },
   {
     title: 'All Employees',
     label: '',

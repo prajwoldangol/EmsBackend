@@ -9,12 +9,7 @@ export const AddSchedule = createAsyncThunk(
   async (scheduleData: ScheduleData, thunkAPI) => {
     const response = await axiosBase.post('schedule/timetable', scheduleData)
     const data = response.data
-    // if (data.statusCode === 200 && data.employerId && data.token) {
-    //   //   await thunkAPI
-    //   //     .dispatch(GetEmployer([data.employerId, data.token]))
-    //   //     .unwrap() // Unwrap to properly handle any errors
-    // }
-    // console.log('inner' + data)
+
     const schedules = await thunkAPI.dispatch(
       GetScheduleData(scheduleData.employerId)
     )
@@ -43,7 +38,11 @@ const ScheduleSlice = createSlice({
   name: 'schedule',
 
   initialState: initState,
-  reducers: {},
+  reducers: {
+    ResetScheduleData(state) {
+      return initState
+    },
+  },
   extraReducers(builder) {
     builder
       .addCase(AddSchedule.pending, (state, action) => {})
@@ -54,5 +53,5 @@ const ScheduleSlice = createSlice({
       })
   },
 })
-// export const {  } = ScheduleSlice.actions
+export const { ResetScheduleData } = ScheduleSlice.actions
 export default ScheduleSlice

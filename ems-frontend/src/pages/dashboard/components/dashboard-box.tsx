@@ -6,7 +6,7 @@ const DashboardBox = () => {
   return (
     <div className='flex flex-wrap gap-4'>
       <Link to='/dashboard/addEmployee'>
-        <BoxWrap css='bg-green-500 cursor-pointer'>
+        <BoxWrap css='bg-pink-500 cursor-pointer'>
           <div className=' '>
             <span className='text-xl font-semibold text-white'>
               Add New Employee
@@ -24,7 +24,7 @@ const DashboardBox = () => {
         </BoxWrap>
       </Link>
       <Link to='/dashboard/tasks'>
-        <BoxWrap css='bg-violet-500 cursor-pointer'>
+        <BoxWrap css='bg-orange-400 cursor-pointer'>
           <div className=' '>
             <span className='text-xl font-semibold text-white'>
               Add Task Board
@@ -33,7 +33,7 @@ const DashboardBox = () => {
         </BoxWrap>
       </Link>
       <Link to='/dashboard/schedule'>
-        <BoxWrap css='bg-rose-400 cursor-pointer'>
+        <BoxWrap css='bg-indigo-500 cursor-pointer'>
           <div className=' '>
             <span className='text-xl font-semibold text-gray-900'>
               Add New Schedule
