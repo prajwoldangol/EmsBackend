@@ -1,5 +1,8 @@
 ## Employee Management SAAS Application
-User can manage their employees, create schedules, create task board to track tasks.
+User can manage their employees, create schedules, and create task boards to track tasks.
+
+## Application Flow Architecture
+![er diagram](images/EMS-Application-Flow.jpg)
 
 ## Features
 
@@ -25,3 +28,5 @@ User can manage their employees, create schedules, create task board to track ta
   
 ## DATABASE ER DIAGRAM FOR USER SERVICE
 ![er diagram](images/User-Service-ER-Diagram.png)
+
+
