@@ -42,14 +42,14 @@ User can manage their employees, create schedules, and create task boards to tra
 - **POST** /user/employer/login
 - **POST** /user/employer/register
 - **GET** /user/employer/{id}
-- PUT /user/employer/{empId}/password
-- PUT /user/employer/{empId}
-- PUT /user/employer/role/{empId}
-- DELETE /user/employer/deleteEmployee/{empId}
-- DELETE /user/employer/{empId}
+- **PUT** /user/employer/{empId}/password
+- **PUT** /user/employer/{empId}
+- **PUT** /user/employer/role/{empId}
+- **DELETE** /user/employer/deleteEmployee/{empId}
+- **DELETE** /user/employer/{empId}
 - **POST** /user/employer/newEmployee
 - **POST** /user/employer/generateToken/{empId}
-- PUT /user/employer/updatePassword/{userId}
+- **PUT** /user/employer/updatePassword/{userId}
 
 **Employee**
 
