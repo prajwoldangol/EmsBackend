@@ -14,8 +14,8 @@ public class EmsMailFConfig {
         JavaMailSenderImpl imp = new JavaMailSenderImpl();
         imp.setHost("smtp.gmail.com");
         imp.setPort(587);
-        imp.setUsername("developerprajwol@gmail.com");
-        imp.setPassword("qvjkleftctfugbqj");
+        imp.setUsername("email@gmail.com");
+        imp.setPassword("password");
         Properties props = imp.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
